@@ -1,0 +1,430 @@
+' Gambas class file
+
+Public Root As SubversionRoot
+Public RootObserver As Observer
+Public Task As RepositoryLatestTask
+
+Public Recent As New RecentRoot
+
+Public IgnoreChanges As Boolean
+
+Public Sub _new()
+
+  FormSettings.ApplySavedLocationAndSize(Me)
+  Me.Recent.LoadRecentUrlsAndWorkingDirectories()
+  Me.UpdateRecentRepositoryAndWorkingDirectoriesDropDowns()
+
+  With List
+
+    .Columns.Count = 4
+
+    With List.Columns[1]
+      .Text = ("Status")
+      .Alignment = Align.Center
+      .Width = 120
+    End With
+
+    With List.Columns[2]
+      .Text = ("Size")
+      .Alignment = Align.Right
+      .Width = 80
+    End With
+
+    With List.Columns[3]
+      .Text = ("Modified")
+      .Alignment = Align.Center
+      .Width = 150
+    End With
+
+  End With
+
+  HSplitTree.Layout = [25, 75]
+
+End
+
+Public Sub Form_Open()
+
+  Me.LoadFromSubversionAndDisplay()
+
+End
+
+Public Sub UpdateRecentRepositoryAndWorkingDirectoriesDropDowns()
+
+  Dim RecentWebAddress As RecentWebAddress
+  Dim RecentWorkingDirectory As RecentWorkingDirectory
+
+  Me.IgnoreChanges = True
+
+  Repository.Clear
+  WorkingDirectory.Clear
+
+  For Each RecentWebAddress In Me.Recent.WebAddressses
+    Repository.Add(RecentWebAddress.Url)
+  Next
+
+  For Each RecentWorkingDirectory In Me.Recent.WorkingDirectories
+    WorkingDirectory.Add(RecentWorkingDirectory.Path)
+  Next
+
+  Me.IgnoreChanges = False
+
+End
+
+Public Sub PickWorkingDirectory_Click()
+
+  Try Dialog.Path = WorkingDirectory.text
+  If Not Dialog.SelectDirectory() Then
+    WorkingDirectory.text = Dialog.Path
+  Endif
+
+End
+
+Public Sub WorkingDirectory_Change()
+
+  If Not IgnoreChanges Then
+    Me.LoadFromSubversionAndDisplay()
+  End If
+
+End
+
+Public Sub LoadFromSubversionAndDisplay()
+
+  Dim SvnFile As SubversionFile
+  Dim Credentials As CredentialsForm
+
+  If Exist(WorkingDirectory.text) Then
+
+    Me.Root = New SubversionRoot(WorkingDirectory.Text)
+    Me.RootObserver = New Observer(Me.Root, True) As "RootObserver"
+    Me.Root.LoadFromSubversion()
+
+    List.Clear
+    Tree.Clear
+    Revision.text = ""
+    Commit.Enabled = False
+
+    If Me.Root.Files.Count > 0 Then
+      For Each SvnFile In Me.Root.Files
+        With SvnFile
+
+          If Not .IsSquiggle() Then
+            Try Tree.Add(.FullPath, .FileName, .GetPicture(), .GetParent()).Expanded = Me.Root.Should_Parent_Expand(.FullPath)
+          End If
+
+          If .IsCommitable() Then
+            .IsChecked = True
+            List.Add(.FullPath, .FullPath, .GetCheckedPicture())
+            List[.FullPath][1] = .StatusDisplay()
+            List[.FullPath][2] = .SizeDisplay()
+            List[.FullPath][3] = .DateDisplay()
+          Endif
+
+        End With
+      Next
+    Endif
+  Endif
+
+  With Me.Root
+
+    Try Me.Recent.AddNewRecentWebAddress(.RepositoryUrl)
+    Try Me.Recent.AddNewRecentWorkingDirectory(.WorkingDirectory)
+    Try Me.UpdateRecentRepositoryAndWorkingDirectoriesDropDowns
+    Try WorkingDirectory.Index = 0
+    Try Repository.Index = 0
+
+    Try Revision.Text = "  " & Subst(("Revision: &1 - Author: &2 - Date: &3"), .Revision, .Author, Format(.CommitDate, ("d mmmm yyyy hh:nn:ss")))
+
+  End With
+
+  Me.Update_User_Interface()
+
+  'If Message.Question("Check for Updates Available?", "Yes", "No") = 1 Then
+  Credentials = New CredentialsForm(Repository.Text)
+  Credentials.ShowIfRequired()
+  If Not Credentials.IsCancelled Then
+
+    Task = New RepositoryLatestTask(WorkingDirectory.Text, Credentials.UserName.Text, Credentials.Password.Text) As "Task"
+
+  Endif
+  'Endif
+
+End
+
+Public Sub Task_Read(Value As String)
+
+  Print Value
+
+End
+
+Public Sub Task_Error(Value As String)
+
+  Print Value
+
+End
+
+Public Sub Task_Kill()
+
+  'Print "Background Task Completed"
+  If Me.Task.Value Then
+    Me.Root.RevisionLatest = Me.Task.Value
+    Me.Update_User_Interface
+  End If
+
+End
+
+Public Sub CommitMessage_Change()
+
+  Me.Update_User_Interface()
+
+End
+
+Public Sub Update_User_Interface()
+
+  Update.Enabled = False
+  Commit.Enabled = False
+  Refresh.Enabled = WorkingDirectory.text <> ""
+
+  If Not IsNull(Me.Root) Then
+
+    Commit.Enabled = List.Count > 0 And CommitMessage.text <> Null And Me.Root.SelectedCount() > 0
+    Update.Enabled = Me.Root.IsConnected
+    Repository.text = Me.Root.RepositoryUrl
+
+    If Me.Root.Revision = Me.Root.RevisionLatest Then
+      Update.Text = ("&Update")
+    Else
+      Update.Text = ("&Update " & Me.Root.RevisionLatest & " Available")
+    Endif
+
+  Endif
+
+  Wait
+
+End
+
+Public Sub Commit_Click()
+
+  Dim Credentials As CredentialsForm
+
+  If Not IsNull(Me.Root) Then
+
+    Credentials = New CredentialsForm(Repository.Text)
+    Credentials.ShowIfRequired()
+    If Not Credentials.IsCancelled Then
+
+      Me.Mouse = Mouse.Wait
+      Tabs.index = 1
+      Wait
+
+      Clipboard.Copy(CommitMessage.Text)
+
+      Me.Root.FlagError = False
+      Me.Root.Commit(CommitMessage.Text, False, Credentials.UserName.Text, Credentials.Password.Text)
+
+      If Not Me.Root.FlagError Then
+
+        CommitMessage.Clear
+
+        Me.LoadFromSubversionAndDisplay()
+
+        Me.Mouse = Mouse.Default
+        Message.Title = ("Commit")
+        Message.Info(("Committed!"))
+        Tabs.index = 0
+
+      Else
+
+        Me.Mouse = Mouse.Default
+        Message.Title = ("Commit")
+        Message.Info(("Errors Detected!"))
+
+      Endif
+
+    End If
+
+  Endif
+
+End
+
+Public Sub Update_Click()
+
+  Dim Credentials As CredentialsForm
+
+  If Not IsNull(Me.Root) Then
+
+    Credentials = New CredentialsForm(Repository.Text)
+    Credentials.ShowIfRequired()
+    If Not Credentials.IsCancelled Then
+
+      Me.Mouse = Mouse.Wait
+      Tabs.Index = 1
+      Wait
+
+      Me.Root.FlagError = False
+      Me.Root.Update(Credentials.UserName.Text, Credentials.Password.Text)
+
+      If Not Me.Root.FlagError Then
+
+        Me.Mouse = Mouse.Default
+
+        Me.LoadFromSubversionAndDisplay()
+        Message.Title = ("Update")
+        Message.Info(("Updated!"))
+
+        Tabs.Index = 0
+
+      Else
+
+        Me.Mouse = Mouse.Default
+
+        Message.Title = ("Update")
+        Message.Info(("Errors Detected!"))
+
+      Endif
+
+    Endif
+  Endif
+
+End
+
+Public Sub Refresh_Click()
+
+  Me.LoadFromSubversionAndDisplay()
+  Message.Title = ("Refresh")
+  Message.Info(("Refreshed!"))
+
+End
+
+Public Sub List_DblClick()
+
+  Dim Item As SubversionFile
+
+  If Not IsNull(Me.root)
+    Try Item = Me.Root.GetFile(List.Current.Key)
+    If Not IsNull(Item) Then
+      Item.IsChecked = Not Item.IsChecked
+      List.Current.Picture = Item.GetCheckedPicture()
+      Me.Update_User_Interface()
+    Endif
+  End If
+
+End
+
+Public Sub BrowseToRepository_Click()
+
+  Browse.LaunchUrl(Repository.Text)
+
+End
+
+Public Sub FileAction(ActionName As String, FullName As String)
+
+  Dim SvnFile As SubversionFile
+
+  If Not IsNull(Me.root)
+    Try SvnFile = Me.Root.GetFile(FullName)
+    If Not IsNull(SvnFile) Then
+
+      If ActionName = "Diff" Then
+        SvnFile.Diff()
+
+      Else If ActionName = "Add" Then
+        SvnFile.Add
+        Me.LoadFromSubversionAndDisplay()
+
+      Else If ActionName = "Delete" Then
+        SvnFile.Delete
+        Me.LoadFromSubversionAndDisplay()
+
+      Else If ActionName = "Revert" Then
+        SvnFile.Revert
+        Me.LoadFromSubversionAndDisplay()
+
+      Endif
+
+    Endif
+  End If
+
+End
+
+Public Sub ListAction_Click()
+
+  Me.FileAction(Last.Action, List.Current.Key)
+
+End
+
+Public Sub TreeAction_Click()
+
+  Me.FileAction(Last.Action, Tree.Current.Key)
+
+End
+
+Public Sub RootObserver_Progress(Value As String, Optional NewLine As Boolean = True)
+
+  Commands.text &= Value & If(Newline, "\n", "")
+  Wait
+
+End Sub
+
+Public Sub Checkout_Click()
+
+  Dim CheckoutForm As New CheckoutForm
+  Dim Credentials As CredentialsForm
+
+  CheckoutForm.ShowDialog
+
+  If CheckoutForm.Result Then
+
+    Credentials = New CredentialsForm(CheckoutForm.Repository.Text)
+    Credentials.ShowIfRequired()
+    If Not Credentials.IsCancelled Then
+
+      Me.Mouse = Mouse.Wait
+      Tabs.Index = 1
+      Wait
+
+      Me.Root = New SubversionRoot(CheckoutForm.WorkingDirectory.Text)
+      Me.RootObserver = New Observer(Me.Root, True) As "RootObserver"
+
+      Me.Root.FlagError = False
+      Me.Root.Checkout(CheckoutForm.Repository.text, Dialog.Path, Credentials.UserName.Text, Credentials.Password.text)
+
+      Me.Mouse = Mouse.Default
+      If Not Me.Root.FlagError Then
+        Tabs.Index = 0
+        Wait
+      Endif
+
+      Try Me.Recent.AddNewRecentWorkingDirectory(CheckoutForm.WorkingDirectory.Text)
+      Try Me.UpdateRecentRepositoryAndWorkingDirectoriesDropDowns
+      Try WorkingDirectory.Index = 0
+      Me.LoadFromSubversionAndDisplay
+
+    End If
+  End If
+
+End
+
+Public Sub Form_Move()
+
+  FormSettings.SaveLocationAndSize(Me)
+
+End
+
+Public Sub Form_Resize()
+
+  FormSettings.SaveLocationAndSize(Me)
+
+End
+
+Public Sub Exit_Click()
+
+  Me.Close
+
+End
+
+Public Sub Form_Close()
+
+  FormSettings.SaveLocationAndSize(Me)
+  Me.Recent.SaveRecentUrlsAndWorkingDirectories()
+
+End

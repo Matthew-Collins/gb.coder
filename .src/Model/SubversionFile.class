@@ -1,0 +1,255 @@
+' Gambas class file
+
+Public FullPath As String
+Public RelativePath As String
+Public FolderName As String
+Public FileName As String
+Public IsFolder As Boolean
+Public Props As String
+Public Status As String
+Public Revision As Integer
+Public Author As String
+Public CommitDate As Date
+Public ModifiedDate As Date
+Public Size As Long
+Public IsChecked As Boolean
+
+Public Function GetParent() As String
+
+  If Me.RelativePath = Null Then
+    Return Null
+  Else
+    Return Left(Me.FullPath, - Len(Me.FileName) - 1)
+  Endif
+
+End
+
+Public Function IsSquiggle() As Boolean
+
+  Return EndsWith(Me.FileName, "~")
+
+End Function
+
+Public Function IsIgnored() As Boolean
+
+  'Gambas files to ignore (v1)
+
+  '*.gambas
+  '.lock
+  '*~
+  'core
+  'core.*
+  'vgcore
+  'vgcore.*
+  '.kdbg*
+  '.*.prof
+  '.lang/*.pot
+  '.gambas/*
+
+  If EndsWith(Me.FileName, ".gambas") Then
+    Return True
+
+  Else If EndsWith(Me.FileName, ".lock") Then
+    Return True
+
+  Else If EndsWith(Me.FileName, "~") Then
+    Return True
+
+  Else If EndsWith(Me.FileName, "core") Then
+    Return True
+
+  Else If StartsWith(Me.FileName, "core") Then
+    Return True
+
+  Else If EndsWith(Me.FileName, "vgcore") Then
+    Return True
+
+  Else If StartsWith(Me.FileName, "vgcore") Then
+    Return True
+
+  Else If StartsWith(Me.FileName, ".kdbg") Then
+    Return True
+
+  Else If StartsWith(Me.FileName, ".") And If EndsWith(Me.FileName, ".prof") Then
+    Return True
+
+  Else If Equals(Me.FolderName, ".lang") And If EndsWith(Me.FileName, ".pot") Then
+    Return True
+
+  Else If Equals(Me.FolderName, ".gambas") Then
+    Return True
+
+  Else
+    Return False
+  Endif
+
+End
+
+Public Function EndsWith(Value As String, WithValue As String) As Boolean
+
+  Return Right(Lower(Value), Len(WithValue)) = Lower(WithValue)
+
+End
+
+Public Function StartsWith(Value As String, WithValue As String) As Boolean
+
+  Return Left(Lower(Value), Len(WithValue)) = Lower(WithValue)
+
+End
+
+Public Function Equals(Value As String, WithValue As String) As Boolean
+
+  Return Lower(Value) = Lower(WithValue)
+
+End
+
+Public Function IsUnversioned() As Boolean
+
+  Return Me.Status = "unversioned"
+
+End
+
+Public Function IsNormal() As Boolean
+
+  Return Me.Status = "normal"
+
+End
+
+Public Function IsModified() As Boolean
+
+  Return Me.Status = "modified"
+
+End
+
+Public Function IsDeleted() As Boolean
+
+  Return Me.Status = "deleted"
+
+End
+
+Public Function IsAdded() As Boolean
+
+  Return Me.Status = "added"
+
+End
+
+Public Sub MarkAdded()
+
+  Me.Status = "added"
+
+End
+
+Public Function IsCommitable() As Boolean
+
+  If Not Me.IsNormal() And Not Me.IsIgnored() And Not Me.IsFolder
+    Return True
+  Else If Me.IsIgnored() And If Not Me.IsUnversioned() Then
+    Return True
+  Else
+    Return False
+  End If
+
+End
+
+Public Function VersionControlled() As Boolean
+
+  Return Not Me.IsUnversioned()
+
+End
+
+Public Function SizeDisplay() As String
+
+  If Me.IsFolder Or Me.IsDeleted() Then
+    Return Null
+  Else
+    Return Format(Me.Size, "#,##0")
+  Endif
+
+End
+
+Public Function DateDisplay() As String
+
+  If Me.IsFolder Or Me.IsDeleted() Then
+    Return Null
+  Else
+    Return Format(Me.ModifiedDate, ("dd/mm/yyyy hh:nn:ss"))
+  Endif
+
+End
+
+Public Function StatusDisplay() As String
+
+  Return Upper(Left(Me.Status, 1)) & Right(Me.Status, -1)
+
+End
+
+Public Function GetPicture() As Picture
+
+  If Me.IsIgnored() Then
+    Return Picture.Load("icons/ignore.png")
+
+  Else If Me.IsFolder Then
+    Return Picture["icon:/16/directory"]
+
+  Else If Me.IsModified() Then
+    Return Picture["icon:/16/edit"]
+
+  Else If Me.IsNormal() Then
+    Return Picture["icon:/16/ok"]
+
+  Else If Me.IsUnversioned() Then
+    Return Picture["icon:/16/new"]
+
+  Else If Me.IsAdded() Then
+    Return Picture["icon:/16/new"]
+
+  Else If Me.IsDeleted() Then
+    Return Picture["icon:/16/delete"]
+
+  Else
+    Return Picture["icon:/16/file"]
+
+  Endif
+
+End
+
+Public Function GetCheckedPicture() As Picture
+
+  Dim NewImage As New Image(36, 16, Color.Transparent, 0)
+
+  Dim Icon As Image = Me.GetPicture().Image
+
+  NewImage = NewImage.DrawImage(Icon, 20, 0, 16, 16, 0, 0, 16, 16)
+
+  If Me.IsChecked Then
+    Icon = Image.Load("icons/checked.png")
+    NewImage = NewImage.DrawImage(Icon, 0, 0, 16, 16, 0, 0, 16, 16)
+  Endif
+
+  Return NewImage.Picture
+
+End
+
+Public Sub Diff()
+
+  Global.Run.Execute(["meld", Me.FullPath],, False)
+
+End
+
+Public Sub Revert()
+
+  Global.Run.Execute(["svn", "revert", Me.FullPath])
+
+End
+
+Public Sub Add()
+
+  Global.Run.Execute(["svn", "add", Me.FullPath])
+
+End
+
+Public Sub Delete()
+
+  Global.Run.Execute(["svn", "delete", Me.FullPath, "--force"])
+
+End

@@ -1,0 +1,164 @@
+' Gambas class file
+
+Public WebAddressses As New RecentWebAddress[]
+Public WorkingDirectories As New RecentWorkingDirectory[]
+
+Public Sub LoadRecentUrlsAndWorkingDirectories()
+
+  Me.LoadRecentUrls
+  Me.LoadRecentWorkingDirectories
+
+End Sub
+
+Public Sub LoadRecentUrls()
+
+  Dim Set As New RecentWebAddress
+  Dim SettingName As String
+
+  Dim Index As Integer
+
+  For Index = 1 To 50
+
+    SettingName = "Recent.Repository." & Format(Index, "00") & "/"
+
+    Set = New RecentWebAddress
+    Set.Url = Settings[SettingName & "Url", ""]
+    Set.LastUsed = Settings[SettingName & "LastUsed", ""]
+
+    If Set.Url Then
+      Me.WebAddressses.Add(Set)
+    Endif
+
+  Next
+
+End
+
+Public Sub LoadRecentWorkingDirectories()
+
+  Dim Set As New RecentWorkingDirectory
+  Dim SettingName As String
+
+  Dim Index As Integer
+
+  For Index = 1 To 25
+
+    SettingName = "Recent.WorkingDirectory." & Format(Index, "00") & "/"
+
+    Set = New RecentWorkingDirectory
+    Set.Path = Settings[SettingName & "Path", ""]
+    Set.LastUsed = Settings[SettingName & "LastUsed", ""]
+
+    If Exist(Set.Path) Then
+      Me.WorkingDirectories.Add(Set)
+    Endif
+
+  Next
+
+End
+
+Public Function AddNewRecentWebAddress(SiteUrl As String) As RecentWebAddress
+
+  Dim Set As RecentWebAddress
+  Dim AlreadyInList As Boolean
+
+  For Each Set In Me.WebAddressses
+    If Lower(Set.Url) = Lower(SiteUrl) Then
+      AlreadyInList = True
+      Set.LastUsed = Now()
+      Break
+    Endif
+  Next
+
+  If Not AlreadyInList Then
+    Set = New RecentWebAddress
+    With Set
+      .Url = SiteUrl
+      .LastUsed = Now()
+    End With
+    Me.WebAddressses.Add(Set)
+  End If
+
+  Me.WebAddressses = Me.WebAddressses.Sort(gb.Descent)
+
+End
+
+Public Function AddNewRecentWorkingDirectory(WorkingDirectoryPath As String) As RecentWorkingDirectory
+
+  Dim Set As RecentWorkingDirectory
+  Dim AlreadyInList As Boolean
+
+  For Each Set In Me.WorkingDirectories
+    If Lower(Set.Path) = Lower(WorkingDirectoryPath) Then
+      AlreadyInList = True
+      Set.LastUsed = Now()
+      Break
+    Endif
+  Next
+
+  If Not AlreadyInList Then
+    Set = New RecentWorkingDirectory
+    With Set
+      .Path = WorkingDirectoryPath
+      .LastUsed = Now()
+    End With
+    Me.WorkingDirectories.Add(Set)
+  End If
+
+  Me.WorkingDirectories = Me.WorkingDirectories.Sort(gb.Descent)
+
+End
+
+Public Sub SaveRecentUrlsAndWorkingDirectories()
+
+  Me.SaveRecentUrls
+  Me.SaveRecentWorkingDirectories
+
+End
+
+Public Sub SaveRecentUrls()
+
+  Dim Set As New RecentWebAddress
+  Dim SettingName As String
+
+  Dim Index As Integer
+
+  For Index = 1 To 50
+
+    SettingName = "Recent.Repository." & Format(Index, "00") & "/"
+
+    If Index <= Me.WebAddressses.Count Then
+      Set = Me.WebAddressses[Index - 1]
+    Else
+      Set = New RecentWebAddress
+    Endif
+
+    Settings[SettingName & "Url"] = Set.Url
+    Settings[SettingName & "LastUsed"] = Set.LastUsed
+
+  Next
+
+End
+
+Public Sub SaveRecentWorkingDirectories()
+
+  Dim Set As New RecentWorkingDirectory
+  Dim SettingName As String
+
+  Dim Index As Integer
+
+  For Index = 1 To 25
+
+    SettingName = "Recent.WorkingDirectory." & Format(Index, "00") & "/"
+
+    If Index <= Me.WorkingDirectories.Count Then
+      Set = Me.WorkingDirectories[Index - 1]
+    Else
+      Set = New RecentWorkingDirectory
+    Endif
+
+    Settings[SettingName & "Path"] = Set.Path
+    Settings[SettingName & "LastUsed"] = Set.LastUsed
+
+  Next
+
+End

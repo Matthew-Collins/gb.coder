@@ -1,0 +1,50 @@
+' Gambas class file
+
+Public Project As Project
+Public FileName As String
+Public Type As Integer
+
+Event FlushChanges
+
+Public Sub _new(_Project As Project, _FileName As String, _Type As Integer)
+
+  Me.Project = _Project
+  Me.FileName = _FileName
+  Me.Type = _Type
+
+End
+
+Public Sub AddTab(Tabs As TabPanel, UseLastTab As Boolean)
+
+  If Not UseLastTab Then
+    Tabs.Count += 1
+  Endif
+
+  GetEditor(Tabs[Tabs.count - 1])
+  Tabs[Tabs.count - 1].text = FileName
+
+End
+
+Public Function GetEditor(Container As Container) As CodeEditor
+
+  Return New CodeEditor(Container, Me)
+
+End
+
+Public Function LoadText() As String
+
+  Return File.Load(Project.RootFolder &/ FileName)
+
+End
+
+Public Function SaveText(Text As String)
+
+  File.Save(Project.RootFolder &/ FileName, Text)
+
+End
+
+Public Sub Flush()
+
+  Raise FlushChanges
+
+End

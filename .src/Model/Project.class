@@ -1,0 +1,55 @@
+' Gambas class file
+
+Public RootFolder As String
+Public ProjectFiles As New ProjectFile[]
+Public Type As Integer
+
+Public Exec As New Executor
+
+Public Sub _new()
+
+  Dim ProjectFile As New ProjectFile(Me, "Program.vb", ProjectTypes.Vb)
+
+  Me.RootFolder = "/home/matthew/Documents/Core/MyFirstApp"
+  Me.ProjectFiles.Add(ProjectFile)
+  Me.Type = ProjectTypes.VbCore
+
+End
+
+Public Function GetFirstProjectFile() As ProjectFile
+
+  Dim ProjectFile As ProjectFile
+
+  For Each ProjectFile In Me.ProjectFiles
+    Return ProjectFile
+  Next
+
+End
+
+Public Sub Save()
+
+  Dim ProjectFile As ProjectFile
+
+  For Each ProjectFile In Me.ProjectFiles
+    ProjectFile.Flush()
+  Next
+
+End
+
+Public Sub Run()
+
+  Dim Compiler As New String[]
+
+  Me.Save()
+
+  Select Case Me.Type
+    Case ProjectTypes.VbCore
+      Compiler.Add("dotnet")
+      Compiler.Add("run")
+      Compiler.Add("-p")
+      Compiler.Add(RootFolder)
+  End Select
+
+  Exec.Execute(Compiler, Compiler, True, False, "")
+
+End

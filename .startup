@@ -1,14 +1,17 @@
-CommitForm
-gb.subversion
+CoderForm
+gb.coder
 0
 0
-1.0.70
+0.0.5
 
 gb.image
-gb.qt4
+gb.gui
 gb.form
 gb.desktop.x11
 gb.desktop
+gb.eval
+gb.eval.highlight
+gb.form.editor
 gb.settings
 gb.xml
 

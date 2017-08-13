@@ -1,13 +1,17 @@
 # Gambas Project File 3.0
+# Compiled with Gambas 3.9.2
 Title=gb.coder
-Startup=CommitForm
+Startup=CoderForm
 Icon=icons/desktopicon.png
-Version=0.0.1
+Version=0.0.5
 Component=gb.image
-Component=gb.qt4
+Component=gb.gui
 Component=gb.form
 Component=gb.desktop.x11
 Component=gb.desktop
+Component=gb.eval
+Component=gb.eval.highlight
+Component=gb.form.editor
 Component=gb.settings
 Component=gb.xml
 Description="Code Editor for VB.Net, Swift and Html"

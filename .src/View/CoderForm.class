@@ -1,0 +1,84 @@
+' Gambas class file
+
+Public Project As New Project
+Public FirstTab As Boolean = True
+
+Public Sub _new()
+
+  FormSettings.ApplySavedLocationAndSize(Me)
+
+End
+
+Public Sub Form_Open()
+
+  FileOpen_Click
+
+End
+
+Public Sub Form_Close()
+
+  Project.Save()
+
+End
+
+Public Sub FileOpen_Click()
+
+  Project.GetFirstProjectFile().AddTab(Tabs, FirstTab)
+  FirstTab = False
+  Tabs.Show
+
+End
+
+Public Sub FileSave_Click()
+
+  Project.Save()
+
+End
+
+Public Sub RunMenu_Click()
+
+  Project.Run()
+
+End
+
+Public Sub Form_Move()
+
+  FormSettings.SaveLocationAndSize(Me)
+
+End
+
+Public Sub Form_Resize()
+
+  FormSettings.SaveLocationAndSize(Me)
+
+End
+
+Public Sub Tabs_Close(Index As Integer)
+
+  Dim Control As Control
+  Dim IsLast As Boolean = Tabs.Count = 1
+
+  With Tabs[Index]
+    For Each Control In .Children
+      Try Object.Call(Control, "Flush")
+    Next
+    .Children.Clear
+    .Delete
+  End With
+
+  If IsLast Then
+    Tabs.Hide
+    FirstTab = True
+  Endif
+
+End
+
+Public Sub Tabs_CloseAll()
+
+  Dim Index As Integer
+
+  For Index = 0 To Tabs.Count - 1
+    Tabs_Close(0)
+  Next
+
+End

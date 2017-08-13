@@ -1,0 +1,34 @@
+# Gambas Form File 3.0
+
+{ Form Form
+  MoveScaled(0,0,69,46)
+  Arrangement = Arrange.Fill
+  { FileMenu Menu
+    Text = ("File")
+    { FileOpen Menu
+      Text = ("Open")
+      Picture = Picture["icon:/small/open"]
+    }
+    { FileSave Menu
+      Text = ("Save")
+      Picture = Picture["icon:/small/save"]
+    }
+  }
+  { BuildMenu Menu
+    Text = ("Build")
+    { RunMenu Menu
+      Text = ("Run")
+      Picture = Picture["icon:/small/exec"]
+    }
+  }
+  { Tabs TabPanel
+    MoveScaled(0,0,24,24)
+    Arrangement = Arrange.Fill
+    Closable = True
+    CloseButton = True
+    Moveable = True
+    Index = 0
+    Text = ("")
+    Index = 0
+  }
+}

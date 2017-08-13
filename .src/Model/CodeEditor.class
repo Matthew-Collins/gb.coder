@@ -1,0 +1,37 @@
+' Gambas class file
+
+Inherits TextEditor
+
+Public ProjectFile As ProjectFile
+Public ProjectFileObserver As Observer
+
+Public Sub _new(_ProjectFile As ProjectFile)
+
+  With Me
+    .ProjectFile = _ProjectFile
+    .ProjectFileObserver = New Observer(.ProjectFile, True) As "ProjectFileObserver"
+
+    .ShowLineNumber = True
+    '.Font = Fonts["Nato Sans"]
+
+    Select Case .ProjectFile.Type
+      Case ProjectTypes.Vb, ProjectTypes.VbCore
+        .Highlight = "Gambas"
+    End Select
+
+    .Text = .ProjectFile.LoadText()
+  End With
+
+End
+
+Public Sub ProjectFileObserver_FlushChanges()
+
+  Flush()
+
+End
+
+Public Sub Flush()
+
+  Me.ProjectFile.SaveText(Me.Text)
+
+End

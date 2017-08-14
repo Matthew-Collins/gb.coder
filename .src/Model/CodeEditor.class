@@ -17,6 +17,8 @@ Public Sub _new(_ProjectFile As ProjectFile)
     Select Case .ProjectFile.Type
       Case ProjectTypes.Vb, ProjectTypes.VbCore
         .Highlight = "gambas"
+      Case ProjectTypes.Swift
+        .Highlight = "c"
     End Select
 
     .Text = .ProjectFile.LoadText()

@@ -1,6 +1,14 @@
 [Breakpoints]
 Count=0
 
+[DebugWindow]
+Count=0
+
 [OpenFile]
+Count=1
+Active=1
+File[1]=".src/Model/Project.class:0.21"
+
+[Watches]
 Count=0
 

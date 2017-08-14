@@ -8,11 +8,17 @@ Public Exec As New Executor
 
 Public Sub _new()
 
-  Dim ProjectFile As New ProjectFile(Me, "Program.vb", ProjectTypes.Vb)
+  ' Dim ProjectFile As New ProjectFile(Me, "Program.vb", ProjectTypes.Vb)
+  '
+  ' Me.RootFolder = "/home/matthew/Documents/Core/MyFirstApp"
+  ' Me.ProjectFiles.Add(ProjectFile)
+  ' Me.Type = ProjectTypes.VbCore
 
-  Me.RootFolder = "/home/matthew/Documents/Core/MyFirstApp"
+  Dim ProjectFile As New ProjectFile(Me, "main.swift", ProjectTypes.Swift)
+
+  Me.RootFolder = "/home/matthew/Documents/Swift/MyFirstApp"
   Me.ProjectFiles.Add(ProjectFile)
-  Me.Type = ProjectTypes.VbCore
+  Me.Type = ProjectTypes.Swift
 
 End
 
@@ -48,6 +54,11 @@ Public Sub Run()
       Compiler.Add("run")
       Compiler.Add("-p")
       Compiler.Add(RootFolder)
+
+    Case ProjectTypes.Swift
+      Compiler.Add("swift")
+      Compiler.Add(rootfolder &/ "main.swift")
+
   End Select
 
   Exec.Execute(Compiler, Compiler, True, False, "")

@@ -11,17 +11,23 @@ Public Sub _new(_ProjectFile As ProjectFile)
     .ProjectFile = _ProjectFile
     .ProjectFileObserver = New Observer(.ProjectFile, True) As "ProjectFileObserver"
 
-    .ShowLineNumber = True
-    '.Font = Fonts["Nato Sans"]
-
     Select Case .ProjectFile.Type
-      Case ProjectTypes.Vb, ProjectTypes.VbCore
+      Case ProjectTypes.Gambas, ProjectTypes.GambasScript, ProjectTypes.Vb, ProjectTypes.VbCore
         .Highlight = "gambas"
-      Case ProjectTypes.Swift
+      Case ProjectTypes.Swift, ProjectTypes.SwiftScript
         .Highlight = "c"
     End Select
 
     .Text = .ProjectFile.LoadText()
+
+    '.Font = Fonts["Nato Sans"]
+
+    .ShowLineNumber = True
+    .ShowIcon = True
+    .ShowIndent = True
+    .ShowCurrent = True
+    .Breakpoints = []
+
   End With
 
 End

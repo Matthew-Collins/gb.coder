@@ -8,17 +8,23 @@ Public Exec As New Executor
 
 Public Sub _new()
 
-  ' Dim ProjectFile As New ProjectFile(Me, "Program.vb", ProjectTypes.Vb)
-  '
-  ' Me.RootFolder = "/home/matthew/Documents/Core/MyFirstApp"
-  ' Me.ProjectFiles.Add(ProjectFile)
-  ' Me.Type = ProjectTypes.VbCore
+  Dim ProjectFile As New ProjectFile(Me, "Program.vb", ProjectTypes.Vb)
 
-  Dim ProjectFile As New ProjectFile(Me, "main.swift", ProjectTypes.Swift)
-
-  Me.RootFolder = "/home/matthew/Documents/Swift/MyFirstApp"
+  Me.RootFolder = "/home/matthew/Documents/Core/MyFirstApp"
   Me.ProjectFiles.Add(ProjectFile)
-  Me.Type = ProjectTypes.Swift
+  Me.Type = ProjectTypes.VbCore
+
+  ' Dim ProjectFile As New ProjectFile(Me, "main.swift", ProjectTypes.SwiftScript)
+  '
+  ' Me.RootFolder = "/home/matthew/Documents/Swift/MyFirstApp"
+  ' Me.ProjectFiles.Add(ProjectFile)
+  ' Me.Type = ProjectTypes.SwiftScript
+  '
+  ' Dim ProjectFile As New ProjectFile(Me, "Main.module", ProjectTypes.GambasScript)
+  '
+  ' Me.RootFolder = "/home/matthew/Documents/Gambas/MyFirstApp"
+  ' Me.ProjectFiles.Add(ProjectFile)
+  ' Me.Type = ProjectTypes.GambasScript
 
 End
 
@@ -55,9 +61,16 @@ Public Sub Run()
       Compiler.Add("-p")
       Compiler.Add(RootFolder)
 
-    Case ProjectTypes.Swift
+    Case ProjectTypes.SwiftScript
       Compiler.Add("swift")
       Compiler.Add(rootfolder &/ "main.swift")
+
+    Case ProjectTypes.GambasScript
+      Compiler.Add("gbs3")
+      Compiler.Add(rootfolder &/ "Main.module")
+
+    Case Else
+      Message.Error("No Compiler Configured for Project Type")
 
   End Select
 

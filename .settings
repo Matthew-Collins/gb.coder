@@ -5,10 +5,7 @@ Count=0
 Count=0
 
 [OpenFile]
-Count=2
-Active=2
-File[1]=".src/Model/Project.class:0.15"
-File[2]=".src/Model/CodeEditor.class:0.22"
+Count=0
 
 [Watches]
 Count=0

@@ -5,9 +5,21 @@
   Arrangement = Arrange.Fill
   { FileMenu Menu
     Text = ("File")
+    { NewProjectMenu Menu
+      Text = ("New Project")
+      Picture = Picture["icon:/small/new-dir"]
+    }
+    { NewFileMenu Menu
+      Text = ("New File")
+      Picture = Picture["icon:/small/new"]
+    }
+    { OpenProjectMenu Menu
+      Text = ("Open Project")
+      Picture = Picture["icon:/small/directory"]
+    }
     { FileOpen Menu
-      Text = ("Open")
-      Picture = Picture["icon:/small/open"]
+      Text = ("Open File")
+      Picture = Picture["icon:/small/file"]
     }
     { FileSave Menu
       Text = ("Save")
@@ -16,6 +28,21 @@
   }
   { BuildMenu Menu
     Text = ("Build")
+    { MenuDebugger Menu
+      Text = ("Debugger")
+      { MenuDebug Menu
+        Text = ("Start")
+        Picture = Picture["icon:/small/play"]
+      }
+      { MenuDebugContinue Menu
+        Text = ("Continue")
+        Picture = Picture["icon:/small/next"]
+      }
+      { MenuDebugStop Menu
+        Text = ("Stop")
+        Picture = Picture["icon:/small/stop"]
+      }
+    }
     { RunMenu Menu
       Text = ("Run")
       Picture = Picture["icon:/small/exec"]

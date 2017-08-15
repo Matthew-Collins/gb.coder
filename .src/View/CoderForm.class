@@ -82,3 +82,21 @@ Public Sub Tabs_CloseAll()
   Next
 
 End
+
+Public Sub MenuDebug_Click()
+
+  Me.Project.Debug()
+
+End
+
+Public Sub MenuDebugContinue_Click()
+
+  Me.Project.Continue()
+
+End
+
+Public Sub MenuDebugStop_Click()
+
+  Me.Project.Stop()
+
+End

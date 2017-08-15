@@ -26,7 +26,7 @@ Public Sub _new(_ProjectFile As ProjectFile)
     .ShowIcon = True
     .ShowIndent = True
     .ShowCurrent = True
-    .Breakpoints = []
+    .Breakpoints = [0]  'TODO: Change to []
 
   End With
 

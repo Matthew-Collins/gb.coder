@@ -1,0 +1,42 @@
+' Gambas class file
+
+Private lldb As Process
+
+Public Sub _new(FileName As String)
+
+  lldb = Exec ["lldb", FileName] For Write 'As "lldb"
+
+End
+
+Public Sub lldb_Read()
+
+End
+
+Public Sub SetBreakPoints(LineNumbers As Integer[])
+
+  Dim LineNumber As Integer
+  Dim Action As String
+
+  For Each LineNumber In LineNumbers
+    Write #lldb, "b " & LineNumber & Chr(10)
+  Next
+
+End
+
+Public Sub Run()
+
+  Write #lldb, "r" & Chr(10)
+
+End
+
+Public Sub Continue()
+
+  Write #lldb, "c" & Chr(10)
+
+End
+
+Public Sub Exit()
+
+  Write #lldb, "exit" & Chr(10)
+
+End

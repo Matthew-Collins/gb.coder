@@ -6,20 +6,22 @@ Public Type As Integer
 
 Public Exec As New Executor
 
+Public Debugger As DebuggerLLDB
+
 Public Sub _new()
 
-  Dim ProjectFile As New ProjectFile(Me, "Program.vb", ProjectTypes.Vb)
-
-  Me.RootFolder = "/home/matthew/Documents/Core/MyFirstApp"
-  Me.ProjectFiles.Add(ProjectFile)
-  Me.Type = ProjectTypes.VbCore
-
-  ' Dim ProjectFile As New ProjectFile(Me, "main.swift", ProjectTypes.SwiftScript)
+  ' Dim ProjectFile As New ProjectFile(Me, "Program.vb", ProjectTypes.Vb)
   '
-  ' Me.RootFolder = "/home/matthew/Documents/Swift/MyFirstApp"
+  ' Me.RootFolder = "/home/matthew/Documents/Core/MyFirstApp"
   ' Me.ProjectFiles.Add(ProjectFile)
-  ' Me.Type = ProjectTypes.SwiftScript
-  '
+  ' Me.Type = ProjectTypes.VbCore
+
+  Dim ProjectFile As New ProjectFile(Me, "main.swift", ProjectTypes.SwiftScript)
+
+  Me.RootFolder = "/home/matthew/Documents/Swift/MyFirstApp"
+  Me.ProjectFiles.Add(ProjectFile)
+  Me.Type = ProjectTypes.SwiftScript
+
   ' Dim ProjectFile As New ProjectFile(Me, "Main.module", ProjectTypes.GambasScript)
   '
   ' Me.RootFolder = "/home/matthew/Documents/Gambas/MyFirstApp"
@@ -75,5 +77,46 @@ Public Sub Run()
   End Select
 
   Exec.Execute(Compiler, Compiler, True, False, "")
+
+End
+
+Public Sub Debug()
+
+  Dim Compiler As New String[]
+
+  Me.Save()
+
+  Select Case Me.Type
+    Case ProjectTypes.SwiftScript
+
+      Compiler.Add("swiftc")
+      Compiler.Add("-g")
+      Compiler.Add(rootfolder &/ "main.swift")
+      Exec.Execute(Compiler, Compiler, True, False, "")
+
+      Me.Debugger = New DebuggerLLDB(RootFolder &/ "main")
+      Me.Debugger.SetBreakPoints([1])
+      Me.Debugger.Run()
+
+    Case Else
+      Message.Error("No Debugger Configured for Project Type")
+
+  End Select
+
+End
+
+Public Sub Continue()
+
+  If Not IsNull(Me.Debugger)
+    Me.Debugger.Continue()
+  End If
+
+End
+
+Public Sub Stop()
+
+  If Not IsNull(Me.Debugger)
+    Me.Debugger.Exit()
+  End If
 
 End

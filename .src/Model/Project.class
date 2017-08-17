@@ -4,6 +4,8 @@ Public RootFolder As String
 Public ProjectFiles As New ProjectFile[]
 Public Type As Integer
 
+Public SwiftFolder As String = "/home/matthew/Downloads/swift-4.0-DEVELOPMENT-SNAPSHOT-2017-08-15-a-ubuntu16.04/usr/bin"
+
 Public Exec As New Executor
 
 Public Debugger As DebuggerLLDB
@@ -64,7 +66,7 @@ Public Sub Run()
       Compiler.Add(RootFolder)
 
     Case ProjectTypes.SwiftScript
-      Compiler.Add("swift")
+      Compiler.Add(SwiftFolder &/ "swift")
       Compiler.Add(rootfolder &/ "main.swift")
 
     Case ProjectTypes.GambasScript
@@ -89,34 +91,20 @@ Public Sub Debug()
   Select Case Me.Type
     Case ProjectTypes.SwiftScript
 
-      Compiler.Add("swiftc")
+      Compiler.Add(SwiftFolder &/ "swiftc")
       Compiler.Add("-g")
-      Compiler.Add(rootfolder &/ "main.swift")
-      Exec.Execute(Compiler, Compiler, True, False, "")
+      Compiler.Add(RootFolder &/ "main.swift")
+      Compiler.Add("-o")
+      Compiler.Add(RootFolder &/ "main")
+      Exec.Execute(Compiler)
 
-      Me.Debugger = New DebuggerLLDB(RootFolder &/ "main")
-      Me.Debugger.SetBreakPoints([1])
+      Me.Debugger = New DebuggerLLDB(SwiftFolder, RootFolder &/ "main")
+      Me.Debugger.SetBreakPoints("main.swift", [1])
       Me.Debugger.Run()
 
     Case Else
       Message.Error("No Debugger Configured for Project Type")
 
   End Select
-
-End
-
-Public Sub Continue()
-
-  If Not IsNull(Me.Debugger)
-    Me.Debugger.Continue()
-  End If
-
-End
-
-Public Sub Stop()
-
-  If Not IsNull(Me.Debugger)
-    Me.Debugger.Exit()
-  End If
 
 End

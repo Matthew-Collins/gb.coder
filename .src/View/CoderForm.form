@@ -33,14 +33,37 @@
       { MenuDebug Menu
         Text = ("Start")
         Picture = Picture["icon:/small/play"]
+        Shortcut = "F4"
       }
       { MenuDebugContinue Menu
         Text = ("Continue")
         Picture = Picture["icon:/small/next"]
+        Shortcut = "F5"
       }
       { MenuDebugStop Menu
         Text = ("Stop")
         Picture = Picture["icon:/small/stop"]
+      }
+      { MenuDebugStepIn Menu
+        Text = ("Step-In")
+        Shortcut = "F8"
+      }
+      { MenuDebugStepOver Menu
+        Text = ("Step-Over")
+      }
+      { MenuDebugStepOut Menu
+        Text = ("Step-Out")
+      }
+      { MenuDebugStepInstruction Menu
+        Text = ("Step-Instruction")
+      }
+      { MenuDebugStepOverInstruction Menu
+        Text = ("Step-Over-Instruction")
+      }
+      { MenuRefresh Menu
+        Text = ("Refresh")
+        Picture = Picture["icon:/small/refresh"]
+        Shortcut = "F6"
       }
     }
     { RunMenu Menu

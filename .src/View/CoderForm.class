@@ -91,12 +91,48 @@ End
 
 Public Sub MenuDebugContinue_Click()
 
-  Me.Project.Continue()
+  Me.Project.Debugger.Continue()
 
 End
 
 Public Sub MenuDebugStop_Click()
 
-  Me.Project.Stop()
+  Me.Project.Debugger.Exit()
+
+End
+
+Public Sub MenuDebugStepIn_Click()
+
+  Me.Project.Debugger.StepIn()
+
+End
+
+Public Sub MenuDebugStepOver_Click()
+
+  Me.Project.Debugger.StepOver()
+
+End
+
+Public Sub MenuDebugStepOut_Click()
+
+  Me.Project.Debugger.StepOut()
+
+End
+
+Public Sub MenuDebugStepInstruction_Click()
+
+  Me.Project.Debugger.StepInstruction()
+
+End
+
+Public Sub MenuDebugStepOverInstruction_Click()
+
+  Me.Project.Debugger.StepOverInstruction()
+
+End
+
+Public Sub MenuRefresh_Click()
+
+  Me.Project.Debugger.Refresh()
 
 End

@@ -50,7 +50,7 @@ Public Sub ProcessLine_StoppedAt(Value As String)
   If Left(Value, 11) = "    frame #" Then
     AtPostion = RInStr(Value, " at ")
     If AtPostion > 0 Then
-      FileNameAndLineNumber = Right(Value, Len(Value) - AtPostion)
+      FileNameAndLineNumber = Right(Value, Len(Value) - AtPostion - 3)
       Values = Split(FileNameAndLineNumber, ":")
       If Values.Count > 1 Then
         FileName = Values[0]
@@ -83,11 +83,9 @@ End
 Public Sub SetBreakPoints(FileName As String, LineNumbers As Integer[])
 
   Dim LineNumber As Integer
-  Dim Action As String
 
   For Each LineNumber In LineNumbers
     Write #lldb, "breakpoint set --file " & FileName & " --line " & LineNumber & Chr(10)
-    'Write #lldb, "b " & LineNumber & Chr(10)
   Next
 
 End

@@ -92,7 +92,6 @@ End
 Public Sub Debug()
 
   Dim Compiler As New String[]
-  Dim Value As String
 
   Me.Save()
 
@@ -149,8 +148,9 @@ Public Sub DebuggerObserver_StoppedAt(FileName As String, LineNumber As Integer)
   Dim ProjectFile As ProjectFile
 
   For Each ProjectFile In Me.ProjectFiles
-    'TODO: Match FileNames
-    ProjectFile.StoppedAt(LineNumber)
+    If ProjectFile.FileName = FileName Then
+      ProjectFile.StoppedAt(LineNumber)
+    End If
   Next
 
 End

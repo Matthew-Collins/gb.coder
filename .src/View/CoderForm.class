@@ -1,6 +1,8 @@
 ' Gambas class file
 
 Public Project As New Project
+Public ProjectObserver As New Observer(Project, True) As "ProjectObserver"
+
 Public FirstTab As Boolean = True
 
 Public Sub _new()
@@ -91,48 +93,56 @@ End
 
 Public Sub MenuDebugContinue_Click()
 
-  Me.Project.Debugger.Continue()
+  Try Me.Project.Debugger.Continue()
 
 End
 
 Public Sub MenuDebugStop_Click()
 
-  Me.Project.Debugger.Exit()
+  Try Me.Project.Debugger.Exit()
 
 End
 
 Public Sub MenuDebugStepIn_Click()
 
-  Me.Project.Debugger.StepIn()
+  Try Me.Project.Debugger.StepIn()
 
 End
 
 Public Sub MenuDebugStepOver_Click()
 
-  Me.Project.Debugger.StepOver()
+  Try Me.Project.Debugger.StepOver()
 
 End
 
 Public Sub MenuDebugStepOut_Click()
 
-  Me.Project.Debugger.StepOut()
+  Try Me.Project.Debugger.StepOut()
 
 End
 
 Public Sub MenuDebugStepInstruction_Click()
 
-  Me.Project.Debugger.StepInstruction()
+  Try Me.Project.Debugger.StepInstruction()
 
 End
 
 Public Sub MenuDebugStepOverInstruction_Click()
 
-  Me.Project.Debugger.StepOverInstruction()
+  Try Me.Project.Debugger.StepOverInstruction()
 
 End
 
 Public Sub MenuRefresh_Click()
 
-  Me.Project.Debugger.Refresh()
+  Try Me.Project.Debugger.Refresh()
+
+End
+
+Public Sub ProjectObserver_DisplayLine(Value As String)
+
+  Commands.Text &= CStr(Value) & If(True, "\n", "")
+  Commands.EnsureVisible
+  Wait
 
 End

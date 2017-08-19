@@ -5,6 +5,7 @@ Public FileName As String
 Public Type As Integer
 
 Event FlushChanges
+Event Stopped(LineNumber As Integer)
 
 Public Sub _new(_Project As Project, _FileName As String, _Type As Integer)
 
@@ -46,5 +47,11 @@ End
 Public Sub Flush()
 
   Raise FlushChanges
+
+End
+
+Public Sub StoppedAt(LineNumber As Integer)
+
+  Raise Stopped(LineNumber)
 
 End

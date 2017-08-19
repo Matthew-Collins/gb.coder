@@ -4,13 +4,79 @@
 
 Private lldb As Process
 
-Public Sub _new(Folder As String, FileName As String)
+Event StoppedAt(FileName As String, LineNumber As Integer)
+Event DisplayLine(Value As String)
 
-  lldb = Exec [Folder &/ "lldb", FileName] For Write 'As "lldb"
+Public Sub _new(lldbPath As String, FileName As String)
+
+  lldb = Exec [lldbPath, FileName] For Read Write As "lldb"
 
 End
 
 Public Sub lldb_Read()
+
+  Dim Value As String
+
+  Do While Not Eof(lldb)
+    Value = lldb.ReadLine()
+
+    Print Value
+    Raise DisplayLine(Value)
+
+    ProcessLine_StoppedAt(Value)
+    ProcessLine_Exited(Value)
+
+  Loop
+
+End
+
+Public Sub lldb_Kill()
+
+  Raise StoppedAt("", 0)
+
+End
+
+Public Sub ProcessLine_StoppedAt(Value As String)
+
+  'Example Line:
+  '    frame #0: 0x0000000000400e52 main`main at main.swift:2
+
+  Dim AtPostion As Integer
+  Dim FileNameAndLineNumber As String
+  Dim Values As String[]
+  Dim FileName As String
+  Dim LineNumber As Integer
+
+  If Left(Value, 11) = "    frame #" Then
+    AtPostion = RInStr(Value, " at ")
+    If AtPostion > 0 Then
+      FileNameAndLineNumber = Right(Value, Len(Value) - AtPostion)
+      Values = Split(FileNameAndLineNumber, ":")
+      If Values.Count > 1 Then
+        FileName = Values[0]
+        LineNumber = CInt(Values[1])
+        Raise StoppedAt(FileName, LineNumber)
+      Endif
+    Endif
+  Endif
+
+End
+
+Public Sub ProcessLine_Exited(Value As String)
+
+  'Example Line:
+  'Process 4803 exited with status = 0 (0x00000000)
+  If Left(Value, 8) = "Process " Then
+    If InStr(Value, " exited with status = ") > 0 Then
+      Raise StoppedAt("", 0)
+    Endif
+  Endif
+
+End
+
+Public Sub LoadPlugIn(Name As String)
+
+  Write #lldb, "plugin load " & Name & Chr(10)
 
 End
 
@@ -21,6 +87,7 @@ Public Sub SetBreakPoints(FileName As String, LineNumbers As Integer[])
 
   For Each LineNumber In LineNumbers
     Write #lldb, "breakpoint set --file " & FileName & " --line " & LineNumber & Chr(10)
+    'Write #lldb, "b " & LineNumber & Chr(10)
   Next
 
 End
@@ -73,8 +140,16 @@ Public Sub StepOverInstruction()
 
 End
 
+Public Sub RunCommand(Command As String)
+
+  Write #lldb, Command & Chr(10)
+
+End
+
 Public Sub Refresh()
 
   Write #lldb, "frame variable" & Chr(10)
+  Write #lldb, "frame info " & Chr(10)
+  Write #lldb, "sos Threads " & Chr(10)
 
 End

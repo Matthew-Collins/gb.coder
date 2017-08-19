@@ -2,13 +2,13 @@
 
 Public RootFolder As String
 Public ProjectFiles As New ProjectFile[]
+Public TargetFile As String
 Public Type As Integer
 
-Public SwiftFolder As String = "/home/matthew/Downloads/swift-4.0-DEVELOPMENT-SNAPSHOT-2017-08-15-a-ubuntu16.04/usr/bin"
-
-Public Exec As New Executor
-
 Public Debugger As DebuggerLLDB
+Public DebuggerObserver As Observer
+
+Event DisplayLine(Value As String)
 
 Public Sub _new()
 
@@ -16,12 +16,14 @@ Public Sub _new()
   '
   ' Me.RootFolder = "/home/matthew/Documents/Core/MyFirstApp"
   ' Me.ProjectFiles.Add(ProjectFile)
+  ' Me.TargetFile = "bin/Debug/netcoreapp2.0/ubuntu.16.04-x64/MyFirstApp"
   ' Me.Type = ProjectTypes.VbCore
 
   Dim ProjectFile As New ProjectFile(Me, "main.swift", ProjectTypes.SwiftScript)
 
   Me.RootFolder = "/home/matthew/Documents/Swift/MyFirstApp"
   Me.ProjectFiles.Add(ProjectFile)
+  Me.TargetFile = "main"
   Me.Type = ProjectTypes.SwiftScript
 
   ' Dim ProjectFile As New ProjectFile(Me, "Main.module", ProjectTypes.GambasScript)
@@ -60,45 +62,78 @@ Public Sub Run()
 
   Select Case Me.Type
     Case ProjectTypes.VbCore
-      Compiler.Add("dotnet")
-      Compiler.Add("run")
-      Compiler.Add("-p")
-      Compiler.Add(RootFolder)
+      Compiler.Add(PathSetttings.Terminal)
+      Compiler.Add(PathSetttings.TerminalHold)
+      Compiler.Add(PathSetttings.TerminalCommand)
+      Compiler.Add("dotnet run -p " & RootFolder)
+      Exec Compiler For Read As "Compiler"
 
     Case ProjectTypes.SwiftScript
-      Compiler.Add(SwiftFolder &/ "swift")
-      Compiler.Add(rootfolder &/ "main.swift")
+      Compiler.Add(PathSetttings.Terminal)
+      Compiler.Add(PathSetttings.TerminalHold)
+      Compiler.Add(PathSetttings.TerminalCommand)
+      Compiler.Add(PathSetttings.SwiftPath &/ "swift " & Me.RootFolder &/ "main.swift")
+      Exec Compiler For Read As "Compiler"
 
     Case ProjectTypes.GambasScript
-      Compiler.Add("gbs3")
-      Compiler.Add(rootfolder &/ "Main.module")
+      Compiler.Add(PathSetttings.Terminal)
+      Compiler.Add(PathSetttings.TerminalHold)
+      Compiler.Add(PathSetttings.TerminalCommand)
+      Compiler.Add("gbs3 " & Me.RootFolder &/ "Main.module")
+      Exec Compiler For Read As "Compiler"
 
     Case Else
       Message.Error("No Compiler Configured for Project Type")
 
   End Select
 
-  Exec.Execute(Compiler, Compiler, True, False, "")
-
 End
 
 Public Sub Debug()
 
   Dim Compiler As New String[]
+  Dim Value As String
 
   Me.Save()
 
   Select Case Me.Type
+    Case ProjectTypes.VbCore
+
+      If Exist(Me.RootFolder &/ Me.TargetFile) Then
+        Try Kill Me.RootFolder &/ Me.TargetFile
+      End If
+
+      Compiler.Add("dotnet")
+      Compiler.Add("build")
+      Compiler.Add("-c")
+      Compiler.Add("Debug")
+      Compiler.Add("-r")
+      Compiler.Add("ubuntu.16.04-x64") '"linuxmint.18-x64")
+      Compiler.Add(RootFolder)
+      Exec Compiler Wait For Read As "Compiler"
+
+      Me.Debugger = New DebuggerLLDB("lldb-3.6", Me.RootFolder &/ Me.TargetFile)
+      Me.Debugger.LoadPlugIn("/usr/share/dotnet/shared/Microsoft.NETCore.App/2.0.0/libsosplugin.so")
+      Me.Debugger.RunCommand("breakpoint set coreclr`EEStartup")
+      Me.Debugger.SetBreakPoints("Program.vb", [4])
+      Me.Debugger.Refresh()
+      Me.Debugger.Run()
+
     Case ProjectTypes.SwiftScript
 
-      Compiler.Add(SwiftFolder &/ "swiftc")
+      If Exist(Me.RootFolder &/ Me.TargetFile) Then
+        Try Kill Me.RootFolder &/ Me.TargetFile
+      End If
+
+      Compiler.Add(PathSetttings.SwiftPath &/ "swiftc")
       Compiler.Add("-g")
       Compiler.Add(RootFolder &/ "main.swift")
       Compiler.Add("-o")
-      Compiler.Add(RootFolder &/ "main")
-      Exec.Execute(Compiler)
+      Compiler.Add(RootFolder &/ Me.TargetFile)
+      Exec Compiler Wait For Read As "Compiler"
 
-      Me.Debugger = New DebuggerLLDB(SwiftFolder, RootFolder &/ "main")
+      Me.Debugger = New DebuggerLLDB(PathSetttings.SwiftPath &/ "lldb", Me.RootFolder &/ Me.TargetFile)
+      Me.DebuggerObserver = New Observer(Me.Debugger, True) As "DebuggerObserver"
       Me.Debugger.SetBreakPoints("main.swift", [1])
       Me.Debugger.Run()
 
@@ -106,5 +141,39 @@ Public Sub Debug()
       Message.Error("No Debugger Configured for Project Type")
 
   End Select
+
+End
+
+Public Sub DebuggerObserver_StoppedAt(FileName As String, LineNumber As Integer)
+
+  Dim ProjectFile As ProjectFile
+
+  For Each ProjectFile In Me.ProjectFiles
+    'TODO: Match FileNames
+    ProjectFile.StoppedAt(LineNumber)
+  Next
+
+End
+
+Public Sub DebuggerObserver_DisplayLine(Value As String)
+
+  Raise DisplayLine(Value)
+
+End
+
+Public Sub Compiler_Read()
+
+  Dim Value As String
+
+  Do While Not Eof(Last)
+    Value = Last.ReadLine()
+    Raise DisplayLine(Value)
+  Loop
+
+End
+
+Public Sub Compiler_Error(Value As String)
+
+  Raise DisplayLine("Error: " & Value)
 
 End

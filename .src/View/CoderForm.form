@@ -1,8 +1,8 @@
 # Gambas Form File 3.0
 
 { Form Form
-  MoveScaled(0,0,69,46)
-  Arrangement = Arrange.Fill
+  MoveScaled(0,0,57,89)
+  Arrangement = Arrange.Vertical
   { FileMenu Menu
     Text = ("File")
     { NewProjectMenu Menu
@@ -72,7 +72,7 @@
     }
   }
   { Tabs TabPanel
-    MoveScaled(0,0,24,24)
+    MoveScaled(0,0,54,52)
     Arrangement = Arrange.Fill
     Closable = True
     CloseButton = True
@@ -80,5 +80,13 @@
     Index = 0
     Text = ("")
     Index = 0
+  }
+  { Commands TextArea
+    MoveScaled(1,57,54,24)
+    Font = Font["Courier 10 Pitch"]
+    Background = Color.Black
+    Foreground = Color.White
+    Expand = True
+    Wrap = True
   }
 }

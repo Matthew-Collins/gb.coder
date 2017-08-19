@@ -20,15 +20,34 @@ Public Sub _new(_ProjectFile As ProjectFile)
 
     .Text = .ProjectFile.LoadText()
 
-    '.Font = Fonts["Nato Sans"]
+    .Font.Name = "Courier 10 Pitch"
+    .Font.Size = 9
 
     .ShowLineNumber = True
     .ShowIcon = True
     .ShowIndent = True
     .ShowCurrent = True
-    .Breakpoints = [0]  'TODO: Change to []
+
+    Select Case .ProjectFile.Type
+      Case ProjectTypes.Swift, ProjectTypes.SwiftScript
+        .Breakpoints = [0]  'TODO: Change to []
+      Case ProjectTypes.Vb, ProjectTypes.VbCore
+        .Breakpoints = [4]  'TODO: Change to []
+    End Select
 
   End With
+
+End
+
+Public Sub TextEditor_Click()
+
+  Print "Click"
+
+End
+
+Public Sub ProjectFileObserver_Stopped(LineNumber As Integer)
+
+  Me.StopLine = LineNumber - 1
 
 End
 

@@ -9,8 +9,11 @@ Public Debugger As DebuggerLLDB
 Public DebuggerObserver As Observer
 
 Event DisplayLine(Value As String)
+Event ShowFile(ProjectFile As ProjectFile)
 
 Public Sub _new()
+
+  Dim ProjectFile As ProjectFile
 
   ' Dim ProjectFile As New ProjectFile(Me, "Program.vb", ProjectTypes.Vb)
   '
@@ -19,12 +22,13 @@ Public Sub _new()
   ' Me.TargetFile = "bin/Debug/netcoreapp2.0/ubuntu.16.04-x64/MyFirstApp"
   ' Me.Type = ProjectTypes.VbCore
 
-  Dim ProjectFile As New ProjectFile(Me, "main.swift", ProjectTypes.SwiftScript)
-
-  Me.RootFolder = "/home/matthew/Documents/Swift/MyFirstApp"
-  Me.ProjectFiles.Add(ProjectFile)
-  Me.TargetFile = "main"
   Me.Type = ProjectTypes.SwiftScript
+  Me.RootFolder = "/home/matthew/Documents/Swift/MyFirstApp"
+  Me.TargetFile = "main"
+  ProjectFile = New ProjectFile(Me, "main.swift", ProjectTypes.SwiftScript)
+  Me.ProjectFiles.Add(ProjectFile)
+  ProjectFile = New ProjectFile(Me, "my.swift", ProjectTypes.SwiftScript)
+  Me.ProjectFiles.Add(ProjectFile)
 
   ' Dim ProjectFile As New ProjectFile(Me, "Main.module", ProjectTypes.GambasScript)
   '
@@ -57,6 +61,7 @@ End
 Public Sub Run()
 
   Dim Compiler As New String[]
+  Dim ProjectFile As ProjectFile
 
   Me.Save()
 
@@ -68,11 +73,33 @@ Public Sub Run()
       Compiler.Add("dotnet run -p " & RootFolder)
       Exec Compiler For Read As "Compiler"
 
-    Case ProjectTypes.SwiftScript
+    Case ProjectTypes.SwiftScriptOneFile
       Compiler.Add(PathSetttings.Terminal)
       Compiler.Add(PathSetttings.TerminalHold)
       Compiler.Add(PathSetttings.TerminalCommand)
       Compiler.Add(PathSetttings.SwiftPath &/ "swift " & Me.RootFolder &/ "main.swift")
+      Exec Compiler For Read As "Compiler"
+
+    Case ProjectTypes.SwiftScript
+
+      If Exist(Me.RootFolder &/ Me.TargetFile) Then
+        Try Kill Me.RootFolder &/ Me.TargetFile
+      End If
+
+      Compiler.Add(PathSetttings.SwiftPath &/ "swiftc")
+      Compiler.Add("-g")
+      For Each ProjectFile In Me.ProjectFiles
+        Compiler.Add(RootFolder &/ ProjectFile.FileName)
+      Next
+      Compiler.Add("-o")
+      Compiler.Add(RootFolder &/ Me.TargetFile)
+      Exec Compiler Wait For Read As "Compiler"
+
+      Compiler.Clear
+      Compiler.Add(PathSetttings.Terminal)
+      Compiler.Add(PathSetttings.TerminalHold)
+      Compiler.Add(PathSetttings.TerminalCommand)
+      Compiler.Add(RootFolder &/ Me.TargetFile)
       Exec Compiler For Read As "Compiler"
 
     Case ProjectTypes.GambasScript
@@ -92,6 +119,7 @@ End
 Public Sub Debug()
 
   Dim Compiler As New String[]
+  Dim ProjectFile As ProjectFile
 
   Me.Save()
 
@@ -126,7 +154,9 @@ Public Sub Debug()
 
       Compiler.Add(PathSetttings.SwiftPath &/ "swiftc")
       Compiler.Add("-g")
-      Compiler.Add(RootFolder &/ "main.swift")
+      For Each ProjectFile In Me.ProjectFiles
+        Compiler.Add(RootFolder &/ ProjectFile.FileName)
+      Next
       Compiler.Add("-o")
       Compiler.Add(RootFolder &/ Me.TargetFile)
       Exec Compiler Wait For Read As "Compiler"
@@ -149,7 +179,10 @@ Public Sub DebuggerObserver_StoppedAt(FileName As String, LineNumber As Integer)
 
   For Each ProjectFile In Me.ProjectFiles
     If ProjectFile.FileName = FileName Then
+      Raise ShowFile(ProjectFile)
       ProjectFile.StoppedAt(LineNumber)
+    Else
+      ProjectFile.StoppedAt(0)
     End If
   Next
 

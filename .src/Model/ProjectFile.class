@@ -21,8 +21,11 @@ Public Sub AddTab(Tabs As TabPanel, UseLastTab As Boolean)
     Tabs.Count += 1
   Endif
 
-  GetEditor(Tabs[Tabs.count - 1])
-  Tabs[Tabs.count - 1].text = FileName
+  GetEditor(Tabs[Tabs.Count - 1])
+  With Tabs[Tabs.Count - 1]
+    .Text = FileName
+    .Tag = Me
+  End With
 
 End
 
@@ -34,7 +37,13 @@ End
 
 Public Function LoadText() As String
 
-  Return File.Load(Project.RootFolder &/ FileName)
+  Dim Text As String = ""
+
+  If Exist(Project.RootFolder &/ FileName) Then
+    Text = File.Load(Project.RootFolder &/ FileName)
+  Endif
+
+  Return Text
 
 End
 

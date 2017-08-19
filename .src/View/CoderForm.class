@@ -13,21 +13,24 @@ End
 
 Public Sub Form_Open()
 
-  FileOpen_Click
+  Dim ProjectFile As ProjectFile
+
+  For Each ProjectFile In Me.Project.ProjectFiles
+    ProjectFile.AddTab(Tabs, FirstTab)
+    FirstTab = False
+    Tabs.Show
+  Next
 
 End
 
 Public Sub Form_Close()
 
   Project.Save()
+  Quit
 
 End
 
 Public Sub FileOpen_Click()
-
-  Project.GetFirstProjectFile().AddTab(Tabs, FirstTab)
-  FirstTab = False
-  Tabs.Show
 
 End
 
@@ -65,6 +68,7 @@ Public Sub Tabs_Close(Index As Integer)
       Try Object.Call(Control, "Flush")
     Next
     .Children.Clear
+    .Tag = Null
     .Delete
   End With
 
@@ -144,5 +148,29 @@ Public Sub ProjectObserver_DisplayLine(Value As String)
   Commands.Text &= CStr(Value) & If(True, "\n", "")
   Commands.EnsureVisible
   Wait
+
+End
+
+Public Sub ProjectObserver_ShowFile(ProjectFile As ProjectFile)
+
+  Dim Tab As Control
+  Dim Index As Integer
+  Dim IsOpen As Boolean
+
+  For Index = 0 To Tabs.Count - 1
+    Tab = Tabs[Index]
+    If Not IsNull(Tab.Tag) And If Tab.Tag = ProjectFile Then
+      Tabs.Index = Index
+      IsOpen = True
+      Break
+    Endif
+  Next
+
+  If Not IsOpen Then
+    ProjectFile.AddTab(Tabs, FirstTab)
+    Tabs.Index = Tabs.Count - 1
+    FirstTab = False
+    Tabs.Show
+  Endif
 
 End

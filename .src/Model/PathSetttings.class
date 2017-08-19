@@ -1,12 +1,12 @@
 ' Gambas class file
 
-' Static Public Terminal As String = "gnome-terminal"
-' Static Public TerminalHold As String = "--profile=hold"
-' Static Public TerminalCommand As String = "-e"
+Static Public Terminal As String = "gnome-terminal"
+Static Public TerminalHold As String = "--profile=hold"
+Static Public TerminalCommand As String = "-e"
 
-Static Public Terminal As String = "sakura"
-Static Public TerminalHold As String = "-h"
-Static Public TerminalCommand As String = "-x"
+' Static Public Terminal As String = "sakura"
+' Static Public TerminalHold As String = "-h"
+' Static Public TerminalCommand As String = "-x"
 
 Static Public SwiftPath As String = "/home/matthew/Downloads/swift-4.0-DEVELOPMENT-SNAPSHOT-2017-08-15-a-ubuntu16.04/usr/bin"
 

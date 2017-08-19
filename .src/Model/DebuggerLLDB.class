@@ -20,7 +20,7 @@ Public Sub lldb_Read()
   Do While Not Eof(lldb)
     Value = lldb.ReadLine()
 
-    Print Value
+    'Print Value
     Raise DisplayLine(Value)
 
     ProcessLine_StoppedAt(Value)

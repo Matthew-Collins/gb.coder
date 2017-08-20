@@ -5,6 +5,8 @@ Inherits TextEditor
 Public ProjectFile As ProjectFile
 Public ProjectFileObserver As Observer
 
+Public MeObserver As New Observer(Me, True) As "MeObserver"
+
 Public Sub _new(_ProjectFile As ProjectFile)
 
   With Me
@@ -28,20 +30,15 @@ Public Sub _new(_ProjectFile As ProjectFile)
     .ShowIndent = True
     .ShowCurrent = True
 
-    Select Case .ProjectFile.Type
-      Case ProjectTypes.Swift, ProjectTypes.SwiftScript
-        .Breakpoints = [0]  'TODO: Change to []
-      Case ProjectTypes.Vb, ProjectTypes.VbCore
-        .Breakpoints = [4]  'TODO: Change to []
-    End Select
-
   End With
 
 End
 
-Public Sub TextEditor_Click()
+Public Sub MeObserver_MouseDown()
 
-  Print "Click"
+  If Mouse.x > 16 And Mouse.x < 34
+    Me.Current.Breakpoint = Not Me.Current.Breakpoint
+  End If
 
 End
 

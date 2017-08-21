@@ -80,12 +80,18 @@ Public Sub LoadPlugIn(Name As String)
 
 End
 
-Public Sub SetBreakPoints(FileName As String, LineNumbers As Integer[])
+Public Sub ClearBreakpoints()
+
+  Write #lldb, "breakpoint disable" & Chr(10)
+
+End
+
+Public Sub SetBreakpoints(FileName As String, LineNumbers As Integer[])
 
   Dim LineNumber As Integer
 
   For Each LineNumber In LineNumbers
-    Write #lldb, "breakpoint set --file " & FileName & " --line " & LineNumber & Chr(10)
+    Write #lldb, "breakpoint set --file " & FileName & " --line " & LineNumber + 1 & Chr(10)
   Next
 
 End

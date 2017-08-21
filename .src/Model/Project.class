@@ -163,13 +163,30 @@ Public Sub Debug()
 
       Me.Debugger = New DebuggerLLDB(PathSetttings.SwiftPath &/ "lldb", Me.RootFolder &/ Me.TargetFile)
       Me.DebuggerObserver = New Observer(Me.Debugger, True) As "DebuggerObserver"
-      Me.Debugger.SetBreakPoints("main.swift", [1])
+
+      For Each ProjectFile In Me.ProjectFiles
+        Me.Debugger.SetBreakpoints(ProjectFile.FileName, ProjectFile.Breakpoints)
+      Next
+
       Me.Debugger.Run()
 
     Case Else
       Message.Error("No Debugger Configured for Project Type")
 
   End Select
+
+End
+
+Public Sub UpdateBreakpoints()
+
+  Dim ProjectFile As ProjectFile
+
+  If Not IsNull(Me.Debugger) Then
+    Me.Debugger.ClearBreakpoints()
+    For Each ProjectFile In Me.ProjectFiles
+      Me.Debugger.SetBreakpoints(ProjectFile.FileName, ProjectFile.Breakpoints)
+    Next
+  End If
 
 End
 

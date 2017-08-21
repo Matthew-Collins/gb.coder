@@ -4,6 +4,8 @@ Public Project As Project
 Public FileName As String
 Public Type As Integer
 
+Public Breakpoints As New Integer[]
+
 Event FlushChanges
 Event Stopped(LineNumber As Integer)
 

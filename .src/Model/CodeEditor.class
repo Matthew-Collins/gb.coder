@@ -30,6 +30,8 @@ Public Sub _new(_ProjectFile As ProjectFile)
     .ShowIndent = True
     .ShowCurrent = True
 
+    .Breakpoints = ProjectFile.Breakpoints
+
   End With
 
 End
@@ -38,6 +40,8 @@ Public Sub MeObserver_MouseDown()
 
   If Mouse.x > 16 And Mouse.x < 34
     Me.Current.Breakpoint = Not Me.Current.Breakpoint
+    Me.ProjectFile.Breakpoints = Me.Breakpoints
+    Me.ProjectFile.Project.UpdateBreakpoints()
   End If
 
 End

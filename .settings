@@ -4,6 +4,9 @@ Count=0
 [DebugWindow]
 Count=0
 
+[Executable]
+Path="gb.coder.gambas"
+
 [OpenFile]
 Count=0
 

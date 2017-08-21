@@ -3,7 +3,7 @@
 Title=gb.coder
 Startup=CoderForm
 Icon=icons/desktopicon.png
-Version=0.0.12
+Version=0.0.16
 Component=gb.image
 Component=gb.gui
 Component=gb.form

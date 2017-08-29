@@ -1,11 +1,11 @@
 # Gambas Project File 3.0
-# Compiled with Gambas 3.9.2
+# Compiled with Gambas 3.10.0
 Title=gb.coder
 Startup=CoderForm
 Icon=icons/desktopicon.png
-Version=0.0.16
+Version=0.0.23
 Component=gb.image
-Component=gb.gui
+Component=gb.gui.qt
 Component=gb.form
 Component=gb.desktop.x11
 Component=gb.desktop

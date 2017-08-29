@@ -71,6 +71,13 @@
       Picture = Picture["icon:/small/exec"]
     }
   }
+  { MenuHelp Menu
+    Text = ("Help")
+    { MenuAbout Menu
+      Text = ("About")
+      Shortcut = "F1"
+    }
+  }
   { Tabs TabPanel
     MoveScaled(0,0,54,52)
     Arrangement = Arrange.Fill
@@ -81,7 +88,7 @@
     Text = ("")
     Index = 0
   }
-  { Commands TextArea
+  { CommandText TextArea
     MoveScaled(1,57,54,24)
     Font = Font["Courier 10 Pitch"]
     Background = Color.Black

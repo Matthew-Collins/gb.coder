@@ -1,7 +1,7 @@
 ' Gambas class file
 
-Public Project As New Project
-Public ProjectObserver As New Observer(Project, True) As "ProjectObserver"
+Public Project As New Project As "Project"
+Public CodeCompleter As New CodeCompleter(Project)
 
 Public FirstTab As Boolean = True
 
@@ -26,6 +26,7 @@ End
 Public Sub Form_Close()
 
   Project.Save()
+  Project.ProjectFiles = Null
   Quit
 
 End
@@ -48,12 +49,14 @@ End
 
 Public Sub Form_Move()
 
+  Me.CodeCompleter.Pulldown(False)
   FormSettings.SaveLocationAndSize(Me)
 
 End
 
 Public Sub Form_Resize()
 
+  Me.CodeCompleter.Pulldown(False)
   FormSettings.SaveLocationAndSize(Me)
 
 End
@@ -143,15 +146,31 @@ Public Sub MenuRefresh_Click()
 
 End
 
-Public Sub ProjectObserver_DisplayLine(Value As String)
+Public Sub MenuAbout_Click()
 
-  Commands.Text &= CStr(Value) & If(True, "\n", "")
-  Commands.EnsureVisible
+  Dim x As Integer
+
+  ' For x = 1 To 10
+  '   CommandText.Text &= "Line" & x & "\n"
+  ' Next
+  '
+  ' CommandText.EnsureVisible()
+
+  For x = 1 To 10
+    Me.Project.Display("Line" & x)
+  Next
+
+End
+
+Public Sub Project_DisplayLineOfText(Value As String)
+
+  CommandText.Text &= Value & "\n"
+  CommandText.EnsureVisible()
   Wait
 
 End
 
-Public Sub ProjectObserver_ShowFile(ProjectFile As ProjectFile)
+Public Sub Project_ShowFile(ProjectFile As ProjectFile)
 
   Dim Tab As Control
   Dim Index As Integer
@@ -172,5 +191,25 @@ Public Sub ProjectObserver_ShowFile(ProjectFile As ProjectFile)
     FirstTab = False
     Tabs.Show
   Endif
+
+End
+
+Public Sub Project_CodeCompletionPopup(_TextEditor As CodeEditor)
+
+  Me.CodeCompleter.Popup(Me, _TextEditor)
+
+End
+
+Public Sub Project_CodeCompletionPulldown(InsertFirst As Boolean)
+
+  Me.CodeCompleter.Pulldown(InsertFirst)
+
+End
+
+Public Sub Project_CodeCompletionNavigate(Down As Integer)
+
+  If Me.CodeCompleter.Navigate(Down)
+    Stop Event
+  End If
 
 End

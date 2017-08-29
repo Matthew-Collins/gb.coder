@@ -1,0 +1,112 @@
+' Gambas class file
+
+Public Project As Project
+Public Editor As CodeEditor
+
+Public Sub _new(_Project As Project)
+
+  Me.Project = _Project
+
+  With Options
+    .Add("1", "One")
+    .Add("2", "Two")
+    .Add("3", "Three")
+    .Add("4", "Four")
+    .Add("5", "Five")
+  End With
+
+  Options["1"].Selected = True
+
+End
+
+Public Sub Options_KeyPress()
+
+  If Key.Code = Key.Enter Then
+    Me.Complete
+    Me.Hide
+  Else If Key.Code = Key.Tab Then
+    Me.Complete
+    Me.Hide
+  Else If Key.code = Key.Esc Then
+    Me.Hide
+  Endif
+
+End
+
+Public Sub Options_DblClick()
+
+  Me.Complete
+  Me.Hide
+
+End
+
+Public Sub Complete()
+
+  If Not IsNull(Options.Current) Then
+    Me.Editor.Insert(Options.Current.Text)
+  Endif
+
+End
+
+Public Sub Pulldown(InsertFirst As Boolean)
+
+  If InsertFirst Then
+    Me.Complete
+  Endif
+  Me.Hide
+
+End
+
+Public Function Navigate(Down As Integer) As Boolean
+
+  If Me.Visible Then
+    Try Options.Selection = [CStr(CInt(Options.Current.Key) + Down)]
+    Return True
+  Else
+    Return False
+  Endif
+
+End
+
+Public Sub Popup(_Form As Form, _TextEditor As CodeEditor)
+
+  Print "Popup"
+
+  Me.Editor = _TextEditor
+
+  'Exec [PathSetttings.SourceKitten, "complete", "--text", Me.Editor.Text, "--offset", Me.Editor.OffSet()] Wait As "CodeCompleter"
+
+  Exec [PathSetttings.SourceKitten, "complete", "--file", Me.Editor.ProjectFile.FullFileName, "--offset", Me.Editor.OffSet()] Wait As "CodeCompleter"
+
+  With Me.Editor.CursorAt(Me.Editor.Line, Me.Editor.Column)
+    Me.x = Me.Editor.ScreenX + .X
+    Me.y = Me.Editor.ScreenY + .y + Me.Editor.Current.Height
+  End With
+
+  If Not Me.Visible Then
+
+    Me.Show
+    _Form.Show
+    Me.Raise
+
+  Endif
+
+End
+
+Public Sub CodeCompleter_Read()
+
+  Dim Value As String
+
+  Do While Not Eof(Last)
+    Value = Last.ReadLine()
+  Loop
+
+  Project.Display(Value)
+
+End
+
+Public Sub CodeCompleter_Error(Value As String)
+
+  Project.Display(Value)
+
+End

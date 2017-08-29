@@ -8,6 +8,8 @@ Static Public TerminalCommand As String = "-e"
 ' Static Public TerminalHold As String = "-h"
 ' Static Public TerminalCommand As String = "-x"
 
-Static Public SwiftPath As String = "/home/matthew/Downloads/swift-4.0-DEVELOPMENT-SNAPSHOT-2017-08-15-a-ubuntu16.04/usr/bin"
+Static Public SwiftPath As String = User.Home &/ "Downloads/swift-4.0-DEVELOPMENT-SNAPSHOT-2017-08-15-a-ubuntu16.04/usr/bin"
+
+Static Public SourceKitten As String = User.Home &/ "Documents/3rd Party/jpsim/SourceKitten/.build/x86_64-unknown-linux/debug/sourcekitten"
 
 Static Public DotNetSOSPlugin As String = "/usr/share/dotnet/shared/Microsoft.NETCore.App/2.0.0/libsosplugin.so"

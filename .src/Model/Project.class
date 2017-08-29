@@ -8,8 +8,12 @@ Public Type As Integer
 Public Debugger As DebuggerLLDB
 Public DebuggerObserver As Observer
 
-Event DisplayLine(Value As String)
+Event DisplayLineOfText(Value As String)
 Event ShowFile(ProjectFile As ProjectFile)
+
+Event CodeCompletionPopup(TextEditor As CodeEditor)
+Event CodeCompletionPulldown(InsertFirst As Boolean)
+Event CodeCompletionNavigate(Down As Integer)
 
 Public Sub _new()
 
@@ -17,13 +21,13 @@ Public Sub _new()
 
   ' Dim ProjectFile As New ProjectFile(Me, "Program.vb", ProjectTypes.Vb)
   '
-  ' Me.RootFolder = "/home/matthew/Documents/Core/MyFirstApp"
+  ' Me.RootFolder = User.Home &/ "Documents/Core/MyFirstApp"
   ' Me.ProjectFiles.Add(ProjectFile)
   ' Me.TargetFile = "bin/Debug/netcoreapp2.0/ubuntu.16.04-x64/MyFirstApp"
   ' Me.Type = ProjectTypes.VbCore
 
   Me.Type = ProjectTypes.SwiftScript
-  Me.RootFolder = "/home/matthew/Documents/Swift/MyFirstApp"
+  Me.RootFolder = User.Home &/ "Documents/Swift/MyFirstApp"
   Me.TargetFile = "main"
   ProjectFile = New ProjectFile(Me, "main.swift", ProjectTypes.SwiftScript)
   Me.ProjectFiles.Add(ProjectFile)
@@ -32,7 +36,7 @@ Public Sub _new()
 
   ' Dim ProjectFile As New ProjectFile(Me, "Main.module", ProjectTypes.GambasScript)
   '
-  ' Me.RootFolder = "/home/matthew/Documents/Gambas/MyFirstApp"
+  ' Me.RootFolder = User.Home &/ "Documents/Gambas/MyFirstApp"
   ' Me.ProjectFiles.Add(ProjectFile)
   ' Me.Type = ProjectTypes.GambasScript
 
@@ -207,7 +211,7 @@ End
 
 Public Sub DebuggerObserver_DisplayLine(Value As String)
 
-  Raise DisplayLine(Value)
+  Raise DisplayLineOfText(Value)
 
 End
 
@@ -224,6 +228,38 @@ End
 
 Public Sub Compiler_Error(Value As String)
 
-  Raise DisplayLine("Error: " & Value)
+  Raise DisplayLineOfText("Error: " & Value)
 
 End
+
+Public Sub Display(Value As String)
+
+  Raise DisplayLineOfText(Value)
+
+End
+
+Public Sub PopupCodeCompletion(_TextEditor As CodeEditor)
+
+  Me.Save
+  Raise CodeCompletionPopup(_TextEditor)
+
+End
+
+Public Sub PulldownCodeCompletion(InsertFirst As Boolean)
+
+  Raise CodeCompletionPulldown(InsertFirst)
+
+End
+
+Public Function NavigateCodeCompletion(Down As Integer) As Boolean
+
+  Dim Handled As Boolean
+
+  Handled = Raise CodeCompletionNavigate(Down)
+
+  Return Handled
+
+End
+
+
+

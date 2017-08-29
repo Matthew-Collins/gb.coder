@@ -9,11 +9,19 @@ Public Breakpoints As New Integer[]
 Event FlushChanges
 Event Stopped(LineNumber As Integer)
 
+Property Read FullFileName As String
+
 Public Sub _new(_Project As Project, _FileName As String, _Type As Integer)
 
   Me.Project = _Project
   Me.FileName = _FileName
   Me.Type = _Type
+
+End
+
+Function FullFileName_Read() As String
+
+  Return Me.Project.RootFolder &/ Me.FileName
 
 End
 

@@ -1,0 +1,11 @@
+# Gambas Form File 3.0
+
+{ Form Form
+  MoveScaled(0,0,56,30)
+  Border = False
+  SkipTaskbar = True
+  Arrangement = Arrange.Fill
+  { Options ListView
+    MoveScaled(1,1,54,28)
+  }
+}

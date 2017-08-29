@@ -5,7 +5,7 @@ Inherits TextEditor
 Public ProjectFile As ProjectFile
 Public ProjectFileObserver As Observer
 
-Public MeObserver As New Observer(Me, True) As "MeObserver"
+Public MeObserver As New Observer(Me, True) As "Me"
 
 Public Sub _new(_ProjectFile As ProjectFile)
 
@@ -15,9 +15,9 @@ Public Sub _new(_ProjectFile As ProjectFile)
 
     Select Case .ProjectFile.Type
       Case ProjectTypes.Gambas, ProjectTypes.GambasScript, ProjectTypes.Vb, ProjectTypes.VbCore
-        .Highlight = "gambas"
+        .Highlight = "Gambas"
       Case ProjectTypes.Swift, ProjectTypes.SwiftScript
-        .Highlight = "c"
+        .Highlight = "C"
     End Select
 
     .Text = .ProjectFile.LoadText()
@@ -29,6 +29,8 @@ Public Sub _new(_ProjectFile As ProjectFile)
     .ShowIcon = True
     .ShowIndent = True
     .ShowCurrent = True
+    .ShowPreview = True
+    .ShowBraces = True
 
     .Breakpoints = ProjectFile.Breakpoints
 
@@ -36,13 +38,63 @@ Public Sub _new(_ProjectFile As ProjectFile)
 
 End
 
-Public Sub MeObserver_MouseDown()
+Public Sub Me_Margin()
 
-  If Mouse.x > 16 And Mouse.x < 34
-    Me.Current.Breakpoint = Not Me.Current.Breakpoint
-    Me.ProjectFile.Breakpoints = Me.Breakpoints
-    Me.ProjectFile.Project.UpdateBreakpoints()
+  Me.Current.Breakpoint = Not Me.Current.Breakpoint
+  Me.ProjectFile.Breakpoints = Me.Breakpoints
+  Me.ProjectFile.Project.UpdateBreakpoints()
+
+End
+
+Public Function OffSet() As Integer
+
+  Dim y As Integer
+  Dim Count As Integer
+
+  For y = 0 To Me.Line - 1
+    Count += Me[y].Length + 1
+  Next
+  Count += Me.Column
+
+  Return Count
+
+End
+
+Public Sub Me_KeyPress()
+
+  If Key.code = Key.Up Then
+    If Me.ProjectFile.Project.NavigateCodeCompletion(-1) Then
+      Stop Event
+    Endif
+  Else If Key.code = Key.Down Then
+    If Me.ProjectFile.Project.NavigateCodeCompletion(1) Then
+      Stop Event
+    Endif
   End If
+
+End
+
+Public Sub Me_KeyRelease()
+
+  If Key.Code = Key.Esc Then
+    Me.ProjectFile.Project.PulldownCodeCompletion(False)
+  Else If Key.code = Key.Up Then
+    If Me.ProjectFile.Project.NavigateCodeCompletion(0) Then
+      Stop Event
+    Endif
+  Else If Key.code = Key.Down Then
+    If Me.ProjectFile.Project.NavigateCodeCompletion(0) Then
+      Stop Event
+    Endif
+  Else
+    Me.ProjectFile.Project.PopupCodeCompletion(Me)
+  Endif
+
+End
+
+Public Sub Me_MouseDown()
+
+  Me.ProjectFile.Project.PulldownCodeCompletion(False)
 
 End
 

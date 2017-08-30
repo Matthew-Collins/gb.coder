@@ -47,16 +47,22 @@ Public Sub RunMenu_Click()
 
 End
 
+Public Sub Form_Deactivate()
+
+  Me.CodeCompleter.Pulldown()
+
+End
+
 Public Sub Form_Move()
 
-  Me.CodeCompleter.Pulldown(False)
+  Me.CodeCompleter.Pulldown()
   FormSettings.SaveLocationAndSize(Me)
 
 End
 
 Public Sub Form_Resize()
 
-  Me.CodeCompleter.Pulldown(False)
+  Me.CodeCompleter.Pulldown()
   FormSettings.SaveLocationAndSize(Me)
 
 End

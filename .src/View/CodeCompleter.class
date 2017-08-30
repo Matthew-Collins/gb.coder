@@ -3,6 +3,8 @@
 Public Project As Project
 Public Editor As CodeEditor
 
+Public IsShowing As Boolean = False
+
 Public Sub _new(_Project As Project)
 
   Me.Project = _Project
@@ -48,12 +50,16 @@ Public Sub Complete()
 
 End
 
-Public Sub Pulldown(InsertFirst As Boolean)
+Public Sub Pulldown(Optional InsertFirst As Boolean = False)
 
-  If InsertFirst Then
-    Me.Complete
+  If Me.IsShowing Then
+    Me.IsShowing = False
+  Else
+    If InsertFirst Then
+      Me.Complete
+    Endif
+    Me.Hide
   Endif
-  Me.Hide
 
 End
 
@@ -61,6 +67,13 @@ Public Function Navigate(Down As Integer) As Boolean
 
   If Me.Visible Then
     Try Options.Selection = [CStr(CInt(Options.Current.Key) + Down)]
+    If IsNull(Options.Current) Then
+      If Down > 0 Then
+        Try Options.Selection = [CStr(Options.Count)]
+      Else If Down < 0
+        Try Options.Selection = ["1"]
+      Endif
+    Endif
     Return True
   Else
     Return False
@@ -70,13 +83,10 @@ End
 
 Public Sub Popup(_Form As Form, _TextEditor As CodeEditor)
 
-  Print "Popup"
-
   Me.Editor = _TextEditor
 
   'Exec [PathSetttings.SourceKitten, "complete", "--text", Me.Editor.Text, "--offset", Me.Editor.OffSet()] Wait As "CodeCompleter"
-
-  Exec [PathSetttings.SourceKitten, "complete", "--file", Me.Editor.ProjectFile.FullFileName, "--offset", Me.Editor.OffSet()] Wait As "CodeCompleter"
+  Exec [PathSetttings.SourceKitten, "complete", "--file", Me.Editor.ProjectFile.FullFileName, "--offset", Me.Editor.OffSet()] For Read As "SourceKitten"
 
   With Me.Editor.CursorAt(Me.Editor.Line, Me.Editor.Column)
     Me.x = Me.Editor.ScreenX + .X
@@ -84,16 +94,15 @@ Public Sub Popup(_Form As Form, _TextEditor As CodeEditor)
   End With
 
   If Not Me.Visible Then
-
+    Me.IsShowing = True
     Me.Show
     _Form.Show
     Me.Raise
-
   Endif
 
 End
 
-Public Sub CodeCompleter_Read()
+Public Sub SourceKitten_Read()
 
   Dim Value As String
 
@@ -105,7 +114,7 @@ Public Sub CodeCompleter_Read()
 
 End
 
-Public Sub CodeCompleter_Error(Value As String)
+Public Sub SourceKitten_Error(Value As String)
 
   Project.Display(Value)
 

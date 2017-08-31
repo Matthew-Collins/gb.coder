@@ -16,8 +16,12 @@ Public Sub _new(_ProjectFile As ProjectFile)
     Select Case .ProjectFile.Type
       Case ProjectTypes.Gambas, ProjectTypes.GambasScript, ProjectTypes.Vb, ProjectTypes.VbCore
         .Highlight = "Gambas"
-      Case ProjectTypes.Swift, ProjectTypes.SwiftScript
+      Case ProjectTypes.Swift, ProjectTypes.SwiftScript, ProjectTypes.SwiftPackage
         .Highlight = "C"
+      Case ProjectTypes.Css
+        .Highlight = "CSS"
+      Case ProjectTypes.Html
+        .Highlight = "HTML"
     End Select
 
     .Text = .ProjectFile.LoadText()

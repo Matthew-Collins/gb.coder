@@ -26,15 +26,27 @@ Public Sub _new()
   ' Me.TargetFile = "bin/Debug/netcoreapp2.0/ubuntu.16.04-x64/MyFirstApp"
   ' Me.Type = ProjectTypes.VbCore
 
-  Me.Type = ProjectTypes.SwiftScript
-  Me.RootFolder = User.Home &/ "Documents/Swift/MyFirstApp"
-  Me.TargetFile = "main"
-  ProjectFile = New ProjectFile(Me, "main.swift", ProjectTypes.SwiftScript)
+  ' Me.Type = ProjectTypes.SwiftScript
+  ' Me.RootFolder = User.Home &/ "Documents/Swift/MyFirstApp"
+  ' Me.TargetFile = "main"
+  ' ProjectFile = New ProjectFile(Me, "", "main.swift", ProjectTypes.Swift)
+  ' Me.ProjectFiles.Add(ProjectFile)
+  ' ProjectFile = New ProjectFile(Me, "", "my.swift", ProjectTypes.Swift)
+  ' Me.ProjectFiles.Add(ProjectFile)
+
+  Me.Type = ProjectTypes.SwiftPackage
+  Me.RootFolder = User.Home &/ "Documents/Swift/MyFirstPackage"
+  Me.TargetFile = ".build/debug/MyFirstPackage"
+  ProjectFile = New ProjectFile(Me, "", "Package.swift", ProjectTypes.SwiftPackage)
   Me.ProjectFiles.Add(ProjectFile)
-  ProjectFile = New ProjectFile(Me, "my.swift", ProjectTypes.SwiftScript)
+  ProjectFile = New ProjectFile(Me, "", "README.md", ProjectTypes.MarkDown)
+  Me.ProjectFiles.Add(ProjectFile)
+  ProjectFile = New ProjectFile(Me, "Sources/MyFirstPackage", "main.swift", ProjectTypes.Swift)
+  Me.ProjectFiles.Add(ProjectFile)
+  ProjectFile = New ProjectFile(Me, "Sources/MyFirstPackage", "my.swift", ProjectTypes.Swift)
   Me.ProjectFiles.Add(ProjectFile)
 
-  ' Dim ProjectFile As New ProjectFile(Me, "Main.module", ProjectTypes.GambasScript)
+  ' Dim ProjectFile As New ProjectFile(Me, "Main.module", ProjectTypes.Gambas)
   '
   ' Me.RootFolder = User.Home &/ "Documents/Gambas/MyFirstApp"
   ' Me.ProjectFiles.Add(ProjectFile)
@@ -93,10 +105,30 @@ Public Sub Run()
       Compiler.Add(PathSetttings.SwiftPath &/ "swiftc")
       Compiler.Add("-g")
       For Each ProjectFile In Me.ProjectFiles
-        Compiler.Add(RootFolder &/ ProjectFile.FileName)
+        Compiler.Add(ProjectFile.FullFileName)
       Next
       Compiler.Add("-o")
       Compiler.Add(RootFolder &/ Me.TargetFile)
+      Exec Compiler Wait For Read As "Compiler"
+
+      Compiler.Clear
+      Compiler.Add(PathSetttings.Terminal)
+      Compiler.Add(PathSetttings.TerminalHold)
+      Compiler.Add(PathSetttings.TerminalCommand)
+      Compiler.Add(RootFolder &/ Me.TargetFile)
+      Exec Compiler For Read As "Compiler"
+
+    Case ProjectTypes.SwiftPackage
+
+      If Exist(Me.RootFolder &/ Me.TargetFile) Then
+        Try Kill Me.RootFolder &/ Me.TargetFile
+      End If
+
+      Compiler.Add(PathSetttings.SwiftPath &/ "swift")
+      Compiler.Add("build")
+      Compiler.Add("--verbose")
+      Compiler.Add("--package-path")
+      Compiler.Add(Me.RootFolder)
       Exec Compiler Wait For Read As "Compiler"
 
       Compiler.Clear
@@ -159,10 +191,32 @@ Public Sub Debug()
       Compiler.Add(PathSetttings.SwiftPath &/ "swiftc")
       Compiler.Add("-g")
       For Each ProjectFile In Me.ProjectFiles
-        Compiler.Add(RootFolder &/ ProjectFile.FileName)
+        Compiler.Add(ProjectFile.FullFileName)
       Next
       Compiler.Add("-o")
       Compiler.Add(RootFolder &/ Me.TargetFile)
+      Exec Compiler Wait For Read As "Compiler"
+
+      Me.Debugger = New DebuggerLLDB(PathSetttings.SwiftPath &/ "lldb", Me.RootFolder &/ Me.TargetFile)
+      Me.DebuggerObserver = New Observer(Me.Debugger, True) As "DebuggerObserver"
+
+      For Each ProjectFile In Me.ProjectFiles
+        Me.Debugger.SetBreakpoints(ProjectFile.FileName, ProjectFile.Breakpoints)
+      Next
+
+      Me.Debugger.Run()
+
+    Case ProjectTypes.SwiftPackage
+
+      If Exist(Me.RootFolder &/ Me.TargetFile) Then
+        Try Kill Me.RootFolder &/ Me.TargetFile
+      End If
+
+      Compiler.Add(PathSetttings.SwiftPath &/ "swift")
+      Compiler.Add("build")
+      Compiler.Add("--verbose")
+      Compiler.Add("--package-path")
+      Compiler.Add(Me.RootFolder)
       Exec Compiler Wait For Read As "Compiler"
 
       Me.Debugger = New DebuggerLLDB(PathSetttings.SwiftPath &/ "lldb", Me.RootFolder &/ Me.TargetFile)
@@ -221,8 +275,10 @@ Public Sub Compiler_Read()
 
   Do While Not Eof(Last)
     Value = Last.ReadLine()
-    Raise DisplayLine(Value)
+    Raise DisplayLineOfText(Value)
   Loop
+
+Catch
 
 End
 

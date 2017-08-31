@@ -1,6 +1,7 @@
 ' Gambas class file
 
 Public Project As Project
+Public Folders As String
 Public FileName As String
 Public Type As Integer
 
@@ -11,9 +12,10 @@ Event Stopped(LineNumber As Integer)
 
 Property Read FullFileName As String
 
-Public Sub _new(_Project As Project, _FileName As String, _Type As Integer)
+Public Sub _new(_Project As Project, _Folders As String, _FileName As String, _Type As Integer)
 
   Me.Project = _Project
+  Me.Folders = _Folders
   Me.FileName = _FileName
   Me.Type = _Type
 
@@ -21,7 +23,7 @@ End
 
 Function FullFileName_Read() As String
 
-  Return Me.Project.RootFolder &/ Me.FileName
+  Return Me.Project.RootFolder &/ Me.Folders &/ Me.FileName
 
 End
 
@@ -49,8 +51,8 @@ Public Function LoadText() As String
 
   Dim Text As String = ""
 
-  If Exist(Project.RootFolder &/ FileName) Then
-    Text = File.Load(Project.RootFolder &/ FileName)
+  If Exist(Me.FullFileName) Then
+    Text = File.Load(Me.FullFileName)
   Endif
 
   Return Text
@@ -59,7 +61,7 @@ End
 
 Public Function SaveText(Text As String)
 
-  File.Save(Project.RootFolder &/ FileName, Text)
+  File.Save(Me.FullFileName, Text)
 
 End
 

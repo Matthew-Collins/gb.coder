@@ -7,6 +7,7 @@ Public FirstTab As Boolean = True
 
 Public Sub _new()
 
+  MenuCodeCompletion.Checked = False
   FormSettings.ApplySavedLocationAndSize(Me)
 
 End
@@ -202,7 +203,9 @@ End
 
 Public Sub Project_CodeCompletionPopup(_TextEditor As CodeEditor)
 
-  Me.CodeCompleter.Popup(Me, _TextEditor)
+  If MenuCodeCompletion.Checked Then
+    Me.CodeCompleter.Popup(Me, _TextEditor)
+  End If
 
 End
 
@@ -214,8 +217,22 @@ End
 
 Public Sub Project_CodeCompletionNavigate(Down As Integer)
 
-  If Me.CodeCompleter.Navigate(Down)
-    Stop Event
+  If MenuCodeCompletion.Checked Then
+    If Me.CodeCompleter.Navigate(Down)
+      Stop Event
+    End If
   End If
+
+End
+
+Public Sub MenuQuit_Click()
+
+  Me.Close
+
+End
+
+Public Sub MenuCodeCompletion_Click()
+
+  MenuCodeCompletion.Checked = Not MenuCodeCompletion.Checked
 
 End

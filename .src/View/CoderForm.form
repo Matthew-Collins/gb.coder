@@ -25,6 +25,12 @@
       Text = ("Save")
       Picture = Picture["icon:/small/save"]
     }
+    { MenuSeperator Menu
+      Text = ("-")
+    }
+    { MenuQuit Menu
+      Text = ("Quit")
+    }
   }
   { BuildMenu Menu
     Text = ("Build")
@@ -71,6 +77,13 @@
       Picture = Picture["icon:/small/exec"]
     }
   }
+  { MenuView Menu
+    Text = ("View")
+    { MenuCodeCompletion Menu
+      Text = ("Code Completion")
+      Checked = True
+    }
+  }
   { MenuHelp Menu
     Text = ("Help")
     { MenuAbout Menu
@@ -79,7 +92,7 @@
     }
   }
   { Tabs TabPanel
-    MoveScaled(0,0,54,52)
+    MoveScaled(0,0,54,67)
     Arrangement = Arrange.Fill
     Closable = True
     CloseButton = True
@@ -89,7 +102,7 @@
     Index = 0
   }
   { CommandText TextArea
-    MoveScaled(1,57,54,24)
+    MoveScaled(1,69,54,12)
     Font = Font["Courier 10 Pitch"]
     Background = Color.Black
     Foreground = Color.White

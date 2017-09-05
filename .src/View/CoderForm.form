@@ -1,8 +1,9 @@
 # Gambas Form File 3.0
 
 { Form Form
-  MoveScaled(0,0,57,89)
+  MoveScaled(0,0,111,56)
   Arrangement = Arrange.Vertical
+  Padding = 5
   { FileMenu Menu
     Text = ("File")
     { NewProjectMenu Menu
@@ -91,22 +92,35 @@
       Shortcut = "F1"
     }
   }
-  { Tabs TabPanel
-    MoveScaled(0,0,54,67)
-    Arrangement = Arrange.Fill
-    Closable = True
-    CloseButton = True
-    Moveable = True
-    Index = 0
-    Text = ("")
-    Index = 0
-  }
-  { CommandText TextArea
-    MoveScaled(1,69,54,12)
-    Font = Font["Courier 10 Pitch"]
-    Background = Color.Black
-    Foreground = Color.White
+  { LeftPanel HSplit
+    MoveScaled(2,3,105,47)
     Expand = True
-    Wrap = True
+    { ProjectTree TreeView
+      MoveScaled(4,7,34,32)
+      Expand = True
+    }
+    { Panel2 VSplit
+      MoveScaled(50,3,55,41)
+      Expand = True
+      { Tabs TabPanel
+        MoveScaled(2,2,51,18)
+        Expand = True
+        Arrangement = Arrange.Fill
+        Closable = True
+        CloseButton = True
+        Moveable = True
+        Index = 0
+        Text = ("")
+        Index = 0
+      }
+      { CommandText TextArea
+        MoveScaled(2,21,51,18)
+        Font = Font["Courier 10 Pitch"]
+        Background = Color.Black
+        Foreground = Color.White
+        Expand = True
+        Wrap = True
+      }
+    }
   }
 }

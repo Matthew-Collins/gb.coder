@@ -90,8 +90,15 @@ Public Sub Me_KeyRelease()
     If Me.ProjectFile.Project.NavigateCodeCompletion(0) Then
       Stop Event
     Endif
-  Else
+  Else If Key.Control And If Key.Code = Key.Space Then
     Me.ProjectFile.Project.PopupCodeCompletion(Me)
+  Else
+
+    Select Case Key.Text
+      Case ".", "(", ":", " "
+        Me.ProjectFile.Project.PopupCodeCompletion(Me)
+    End Select
+
   Endif
 
 End

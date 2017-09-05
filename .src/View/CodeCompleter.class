@@ -9,15 +9,7 @@ Public Sub _new(_Project As Project)
 
   Me.Project = _Project
 
-  With Options
-    .Add("1", "One")
-    .Add("2", "Two")
-    .Add("3", "Three")
-    .Add("4", "Four")
-    .Add("5", "Five")
-  End With
-
-  Options["1"].Selected = True
+  CompletePicker.Columns.Count = 2
 
 End
 
@@ -35,17 +27,10 @@ Public Sub Options_KeyPress()
 
 End
 
-Public Sub Options_DblClick()
-
-  Me.Complete
-  Me.Hide
-
-End
-
 Public Sub Complete()
 
-  If Not IsNull(Options.Current) Then
-    Me.Editor.Insert(Options.Current.Text)
+  If Not IsNull(CompletePicker.Current) Then
+    Me.Editor.Insert(CompletePicker[CompletePicker.Row, 0].Text)
   Endif
 
 End
@@ -65,28 +50,56 @@ End
 
 Public Function Navigate(Down As Integer) As Boolean
 
-  If Me.Visible Then
-    Try Options.Selection = [CStr(CInt(Options.Current.Key) + Down)]
-    If IsNull(Options.Current) Then
-      If Down > 0 Then
-        Try Options.Selection = [CStr(Options.Count)]
-      Else If Down < 0
-        Try Options.Selection = ["1"]
-      Endif
-    Endif
-    Return True
-  Else
-    Return False
-  Endif
+  ' If Me.Visible Then
+  '   Try Options.Selection = [CStr(CInt(Options.Current.Key) + Down)]
+  '   If IsNull(Options.Current) Then
+  '     If Down > 0 Then
+  '       Try Options.Selection = [CStr(Options.Count)]
+  '     Else If Down < 0
+  '       Try Options.Selection = ["1"]
+  '     Endif
+  '   Endif
+  '   Return True
+  ' Else
+  '   Return False
+  ' Endif
 
 End
 
 Public Sub Popup(_Form As Form, _TextEditor As CodeEditor)
 
+  Dim Args As New String[]
+  Dim ProjectFile As ProjectFile
+
   Me.Editor = _TextEditor
 
+  Args.Add(PathSetttings.SourceKitten)
+  Args.Add("complete")
+  Args.Add("--file")
+  Args.Add(Me.Editor.ProjectFile.FullFileName)
+  Args.Add("--offset")
+  Args.Add(Me.Editor.OffSet())
+  Args.Add("--")
+
+  ' If Me.Editor.ProjectFile.Project.Type = ProjectTypes.SwiftPackage Then
+  '   Args.Add("-module-name")
+  '   Args.Add("MyFirstPackage")
+  '   Args.Add("-lPackageDescription")
+  ' Endif
+
+  For Each ProjectFile In Me.Editor.ProjectFile.Project.ProjectFiles
+    Select ProjectFile.Type
+      Case ProjectTypes.Swift
+        Args.Add(ProjectFile.FullFileName)
+    End Select
+  Next
+
+  CompletePicker.Rows.Count = 0
+
   'Exec [PathSetttings.SourceKitten, "complete", "--text", Me.Editor.Text, "--offset", Me.Editor.OffSet()] Wait As "CodeCompleter"
-  Exec [PathSetttings.SourceKitten, "complete", "--file", Me.Editor.ProjectFile.FullFileName, "--offset", Me.Editor.OffSet()] For Read As "SourceKitten"
+  'Exec [PathSetttings.SourceKitten, "complete", "--file", Me.Editor.ProjectFile.FullFileName, "--offset", Me.Editor.OffSet()] For Read As "SourceKitten"
+  'Exec [PathSetttings.SourceKitten, "complete", "--file", Me.Editor.ProjectFile.FullFileName, "--offset", Me.Editor.OffSet(), "--", Files] For Read As "SourceKitten"
+  Exec Args For Read As "SourceKitten"
 
   With Me.Editor.CursorAt(Me.Editor.Line, Me.Editor.Column)
     Me.x = Me.Editor.ScreenX + .X
@@ -105,17 +118,51 @@ End
 Public Sub SourceKitten_Read()
 
   Dim Value As String
+  Dim Results As Variant
+  Dim Index As Integer
 
   Do While Not Eof(Last)
-    Value = Last.ReadLine()
+    Value &= Last.ReadLine() & gb.NewLine
   Loop
+
+  Project.Display(Value)
+
+  Results = JSON.Decode(Value)
+
+  If Results Then
+    CompletePicker.Rows.Count = Results.Count
+    For Index = 0 To Results.Max
+      CompletePicker[Index, 0].Text = Results[Index]["name"]
+      CompletePicker[Index, 1].Text = Results[Index]["descriptionKey"]
+    Next
+    CompletePicker.Columns.Width = -1
+    CompletePicker.Columns[0].Width = GetMin(CompletePicker.Columns[0].Width, 100)
+  Else
+    Me.Hide
+  Endif
+
+End
+
+Public Function GetMin(Value As Integer, Min As Integer) As Integer
+
+  If Value < min Then
+    Return Min
+  Else
+    Return Value
+  Endif
+
+End
+
+
+Public Sub SourceKitten_Error(Value As String)
 
   Project.Display(Value)
 
 End
 
-Public Sub SourceKitten_Error(Value As String)
+Public Sub CompletePicker_Click()
 
-  Project.Display(Value)
+  Me.Complete
+  Me.Hide
 
 End

@@ -13,5 +13,6 @@ gb.eval
 gb.eval.highlight
 gb.form.editor
 gb.settings
+gb.web
 gb.xml
 

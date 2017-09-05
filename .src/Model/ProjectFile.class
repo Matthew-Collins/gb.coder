@@ -61,7 +61,11 @@ End
 
 Public Function SaveText(Text As String)
 
-  File.Save(Me.FullFileName, Text)
+  Dim OldText As String = File.Load(Me.FullFileName)
+
+  If Oldtext <> Text Then
+    File.Save(Me.FullFileName, Text)
+  End If
 
 End
 

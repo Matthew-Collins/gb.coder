@@ -7,7 +7,8 @@ Public FirstTab As Boolean = True
 
 Public Sub _new()
 
-  MenuCodeCompletion.Checked = False
+  LeftPanel.Layout = [20, 80]
+  MenuCodeCompletion.Checked = True
   FormSettings.ApplySavedLocationAndSize(Me)
 
 End
@@ -16,10 +17,18 @@ Public Sub Form_Open()
 
   Dim ProjectFile As ProjectFile
 
+  ProjectTree.Add("0", "My Project").Expanded = True
+
   For Each ProjectFile In Me.Project.ProjectFiles
+
+    'Add Tabs
     ProjectFile.AddTab(Tabs, FirstTab)
     FirstTab = False
     Tabs.Show
+
+    'Add TreeItems
+    ProjectTree.Add(ProjectFile.FullFileName, ProjectFile.FileName,, "0")
+
   Next
 
 End
@@ -48,11 +57,11 @@ Public Sub RunMenu_Click()
 
 End
 
-Public Sub Form_Deactivate()
-
-  Me.CodeCompleter.Pulldown()
-
-End
+' Public Sub Form_Deactivate()
+'
+'   Me.CodeCompleter.Pulldown()
+'
+' End
 
 Public Sub Form_Move()
 

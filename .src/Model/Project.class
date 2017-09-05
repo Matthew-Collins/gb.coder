@@ -37,13 +37,13 @@ Public Sub _new()
   Me.Type = ProjectTypes.SwiftPackage
   Me.RootFolder = User.Home &/ "Documents/Swift/MyFirstPackage"
   Me.TargetFile = ".build/debug/MyFirstPackage"
-  ProjectFile = New ProjectFile(Me, "", "Package.swift", ProjectTypes.SwiftPackage)
-  Me.ProjectFiles.Add(ProjectFile)
-  ProjectFile = New ProjectFile(Me, "", "README.md", ProjectTypes.MarkDown)
-  Me.ProjectFiles.Add(ProjectFile)
   ProjectFile = New ProjectFile(Me, "Sources/MyFirstPackage", "main.swift", ProjectTypes.Swift)
   Me.ProjectFiles.Add(ProjectFile)
   ProjectFile = New ProjectFile(Me, "Sources/MyFirstPackage", "my.swift", ProjectTypes.Swift)
+  Me.ProjectFiles.Add(ProjectFile)
+  ProjectFile = New ProjectFile(Me, "", "Package.swift", ProjectTypes.SwiftPackage)
+  Me.ProjectFiles.Add(ProjectFile)
+  ProjectFile = New ProjectFile(Me, "", "README.md", ProjectTypes.MarkDown)
   Me.ProjectFiles.Add(ProjectFile)
 
   ' Dim ProjectFile As New ProjectFile(Me, "Main.module", ProjectTypes.Gambas)

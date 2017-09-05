@@ -13,6 +13,7 @@ Component=gb.eval
 Component=gb.eval.highlight
 Component=gb.form.editor
 Component=gb.settings
+Component=gb.web
 Component=gb.xml
 Description="Code Editor for vb.net, swift and html"
 Authors="Matthew Collins"
